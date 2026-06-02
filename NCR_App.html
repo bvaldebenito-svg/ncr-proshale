@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>PROSHALE · NCR</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&family=Anton&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #1a3a6b;
+  --bg2: rgba(255,255,255,0.10);
+  --bg3: rgba(255,255,255,0.06);
+  --border: rgba(255,255,255,0.15);
+  --border2: rgba(255,255,255,0.25);
+  --text: #ffffff;
+  --text2: rgba(255,255,255,0.7);
+  --text3: rgba(255,255,255,0.45);
+  --accent: #4da3ff;
+  --accent2: #2563eb;
+  --red: #ff6b6b;
+  --red-bg: rgba(255,107,107,0.18);
+  --amber: #fbbf24;
+  --amber-bg: rgba(251,191,36,0.18);
+  --green: #34d399;
+  --green-bg: rgba(52,211,153,0.18);
+  --blue-bg: rgba(77,163,255,0.18);
+  --purple: #a78bfa;
+  --purple-bg: rgba(167,139,250,0.18);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 24px rgba(0,0,0,0.3);
+  --proshale-blue1: #1a3a6b;
+  --proshale-blue2: #1e6ab4;
+  --proshale-blue3: #2980d4;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: linear-gradient(145deg, #1a3a6b 0%, #1e6ab4 50%, #2980d4 100%);
+  background-attachment: fixed;
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* ── TOPBAR ── */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(20,50,100,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  padding: 0 16px;
+  height: 56px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.topbar-logo { display: flex; align-items: center; gap: 10px; }
+.logo-icon {
+  height: 32px; display: flex; align-items: center;
+}
+.logo-proshale {
+  font-family: 'Anton', sans-serif;
+  font-size: 22px; font-style: italic;
+  color: #fff; letter-spacing: 1px; line-height: 1;
+}
+.logo-proshale span { color: #4da3ff; }
+.topbar-divider {
+  width: 1px; height: 20px; background: rgba(255,255,255,0.2); margin: 0 2px;
+}
+.topbar-title { font-weight: 500; font-size: 13px; color: rgba(255,255,255,0.7); letter-spacing: 0.3px; }
+.topbar-title strong { color: #fff; font-weight: 600; }
+.topbar-title span { color: rgba(255,255,255,0.5); font-weight: 400; font-size: 12px; margin-left: 4px; }
+
+.user-pill {
+  display: flex; align-items: center; gap: 8px;
+  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 20px; padding: 5px 12px 5px 5px;
+  cursor: pointer;
+}
+.user-avatar {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: #4da3ff; display: flex; align-items: center;
+  justify-content: center; font-size: 11px; font-weight: 600; color: #fff;
+}
+.user-email { font-size: 12px; color: rgba(255,255,255,0.8); max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* ── BOTTOM NAV ── */
+.bottom-nav {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(20,50,100,0.95);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(255,255,255,0.12);
+  display: flex;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.nav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; padding: 10px 4px 8px;
+  cursor: pointer; gap: 4px; transition: color 0.15s;
+  color: var(--text3); font-size: 11px; font-weight: 500;
+  border: none; background: none;
+}
+.nav-item.active { color: var(--accent); }
+.nav-icon { font-size: 20px; line-height: 1; }
+
+/* ── MAIN CONTENT ── */
+.main { padding: 72px 0 80px; min-height: 100vh; }
+
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* ── CARDS & LISTS ── */
+.section-header {
+  padding: 16px 16px 8px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.section-title { font-size: 13px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.8px; }
+
+.ncr-list { padding: 0 12px; display: flex; flex-direction: column; gap: 8px; }
+
+.ncr-card {
+  background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius); padding: 14px 16px;
+  cursor: pointer; transition: all 0.15s; position: relative; overflow: hidden;
+  backdrop-filter: blur(8px);
+}
+.ncr-card:active { transform: scale(0.98); background: rgba(255,255,255,0.14); }
+.ncr-card::before {
+  content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+}
+.ncr-card.estado-scrap::before { background: var(--red); }
+.ncr-card.estado-retrabajo::before { background: var(--amber); }
+.ncr-card.estado-pendiente::before { background: var(--accent); }
+.ncr-card.estado-concesion::before { background: var(--green); }
+
+.card-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 8px; }
+.card-id { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text2); }
+.card-title { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+.card-sub { font-size: 13px; color: var(--text2); }
+.card-meta { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 600;
+}
+.badge-scrap { background: var(--red-bg); color: var(--red); }
+.badge-retrabajo { background: var(--amber-bg); color: var(--amber); }
+.badge-pendiente { background: var(--blue-bg); color: var(--accent); }
+.badge-concesion { background: var(--green-bg); color: var(--green); }
+.badge-gray { background: rgba(255,255,255,0.07); color: var(--text2); }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 20px; border-radius: var(--radius-sm); font-size: 14px;
+  font-weight: 600; font-family: 'DM Sans', sans-serif;
+  border: none; cursor: pointer; transition: all 0.15s; width: 100%;
+}
+.btn:active { transform: scale(0.97); }
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent2); }
+.btn-danger { background: var(--red-bg); color: var(--red); border: 1px solid rgba(239,68,68,0.25); }
+.btn-warning { background: var(--amber-bg); color: var(--amber); border: 1px solid rgba(245,158,11,0.25); }
+.btn-success { background: var(--green-bg); color: var(--green); border: 1px solid rgba(16,185,129,0.25); }
+.btn-ghost { background: var(--bg3); color: var(--text); border: 1px solid var(--border); }
+.btn-sm { padding: 8px 14px; font-size: 13px; width: auto; }
+
+/* ── FORM ── */
+.form-wrap { padding: 0 16px; display: flex; flex-direction: column; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-label { font-size: 12px; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; }
+.form-label span { color: var(--red); margin-left: 2px; }
+.form-input, .form-select, .form-textarea {
+  background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius-sm); padding: 12px 14px;
+  color: #fff; font-size: 15px; font-family: 'DM Sans', sans-serif;
+  width: 100%; outline: none; transition: border-color 0.15s;
+  -webkit-appearance: none;
+}
+.form-input::placeholder, .form-textarea::placeholder { color: rgba(255,255,255,0.35); }
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: #4da3ff; background: rgba(255,255,255,0.15); }
+.form-textarea { resize: vertical; min-height: 90px; }
+.form-select option { background: #1a3a6b; color: #fff; }
+
+.disposicion-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.disp-option {
+  display: flex; flex-direction: column; align-items: center;
+  padding: 12px 8px; border-radius: var(--radius-sm);
+  border: 2px solid rgba(255,255,255,0.15); cursor: pointer;
+  transition: all 0.15s; text-align: center; gap: 6px;
+  background: rgba(255,255,255,0.07);
+}
+.disp-option.selected-scrap { border-color: var(--red); background: var(--red-bg); }
+.disp-option.selected-retrabajo { border-color: var(--amber); background: var(--amber-bg); }
+.disp-option.selected-desvio { border-color: var(--accent); background: var(--blue-bg); }
+.disp-icon { font-size: 24px; }
+.disp-label { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.75); }
+
+.form-section-title {
+  font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5);
+  text-transform: uppercase; letter-spacing: 1px;
+  padding: 8px 0 4px; border-top: 1px solid rgba(255,255,255,0.12); margin-top: 4px;
+}
+
+/* ── DETAIL ── */
+.detail-wrap { padding: 0 16px; }
+.detail-hero {
+  background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius); padding: 20px; margin-bottom: 12px;
+}
+.detail-id { font-family: 'DM Mono', monospace; font-size: 12px; color: rgba(255,255,255,0.6); margin-bottom: 6px; }
+.detail-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
+.detail-sub { color: rgba(255,255,255,0.7); font-size: 14px; }
+
+.detail-section {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius); padding: 16px; margin-bottom: 10px;
+}
+.detail-section-title { font-size: 11px; font-weight: 700; color: rgba(255,255,255,0.5); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; }
+.detail-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 8px 0; border-bottom: 1px solid var(--border); gap: 12px; }
+.detail-row:last-child { border-bottom: none; padding-bottom: 0; }
+.detail-key { font-size: 13px; color: var(--text2); flex-shrink: 0; }
+.detail-val { font-size: 13px; font-weight: 500; text-align: right; word-break: break-word; }
+
+.action-zone {
+  background: rgba(77,163,255,0.10); border: 1px solid rgba(77,163,255,0.25);
+  border-radius: var(--radius); padding: 16px; margin-bottom: 10px;
+}
+.action-zone-title { font-size: 12px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 12px; }
+.action-buttons { display: flex; flex-direction: column; gap: 10px; }
+
+.ing-comment { margin-top: 10px; }
+.ing-comment textarea {
+  width: 100%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius-sm); padding: 10px; color: #fff;
+  font-family: 'DM Sans', sans-serif; font-size: 14px; resize: vertical; min-height: 70px;
+  outline: none;
+}
+.ing-comment textarea::placeholder { color: rgba(255,255,255,0.35); }
+
+/* ── DASHBOARD ── */
+.dash-grid {
+  padding: 0 12px; display: grid;
+  grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 12px;
+}
+.kpi-card {
+  background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.15);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius); padding: 16px;
+}
+.kpi-label { font-size: 11px; color: rgba(255,255,255,0.6); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+.kpi-value { font-size: 28px; font-weight: 700; font-family: 'DM Mono', monospace; line-height: 1; }
+.kpi-sub { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+.kpi-red { color: var(--red); }
+.kpi-amber { color: var(--amber); }
+.kpi-green { color: var(--green); }
+.kpi-blue { color: #fff; }
+
+.chart-bar-wrap { padding: 0 12px 12px; }
+.chart-card {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius); padding: 16px;
+}
+.chart-title { font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.7); margin-bottom: 14px; }
+.bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.bar-label { font-size: 12px; color: rgba(255,255,255,0.7); width: 130px; flex-shrink: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.bar-track { flex: 1; background: rgba(255,255,255,0.1); border-radius: 4px; height: 8px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 4px; transition: width 0.6s cubic-bezier(.4,0,.2,1); }
+.bar-count { font-size: 12px; font-family: 'DM Mono', monospace; color: rgba(255,255,255,0.6); width: 24px; text-align: right; }
+
+/* ── LOGIN ── */
+.login-screen {
+  min-height: 100vh; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 32px 24px;
+}
+.login-logo {
+  margin-bottom: 8px;
+}
+.login-logo-text {
+  font-family: 'Anton', sans-serif;
+  font-size: 52px; font-style: italic;
+  color: #fff; letter-spacing: 2px; line-height: 1;
+  text-shadow: 0 2px 20px rgba(0,0,0,0.3);
+}
+.login-title { font-size: 16px; font-weight: 500; text-align: center; margin-bottom: 6px; color: rgba(255,255,255,0.8); letter-spacing: 0.5px; }
+.login-sub { font-size: 14px; color: rgba(255,255,255,0.55); text-align: center; margin-bottom: 36px; line-height: 1.6; }
+.login-form { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 12px; }
+.login-separator { text-align: center; font-size: 12px; color: rgba(255,255,255,0.4); margin: 4px 0; }
+.login-card {
+  background: rgba(255,255,255,0.10); border: 1px solid rgba(255,255,255,0.18);
+  border-radius: 16px; padding: 28px 24px; backdrop-filter: blur(12px);
+}
+
+/* ── MODAL ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0; z-index: 200;
+  background: rgba(10,25,60,0.75); backdrop-filter: blur(4px);
+  align-items: flex-end;
+}
+.modal-overlay.open { display: flex; }
+.modal-sheet {
+  background: #1a3a6b; border-radius: 20px 20px 0 0;
+  padding: 20px 20px 36px; width: 100%;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  animation: slideUp 0.25s cubic-bezier(.4,0,.2,1);
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-handle {
+  width: 36px; height: 4px; background: rgba(255,255,255,0.2);
+  border-radius: 2px; margin: 0 auto 16px;
+}
+.modal-title { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+.modal-body { font-size: 14px; color: rgba(255,255,255,0.65); margin-bottom: 20px; line-height: 1.6; }
+.modal-actions { display: flex; flex-direction: column; gap: 10px; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 90px; left: 16px; right: 16px;
+  background: #143264; border: 1px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius-sm); padding: 14px 16px;
+  display: flex; align-items: center; gap: 12px;
+  box-shadow: var(--shadow); z-index: 300;
+  transform: translateY(20px); opacity: 0;
+  transition: all 0.25s cubic-bezier(.4,0,.2,1);
+  pointer-events: none;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast-icon { font-size: 20px; flex-shrink: 0; }
+.toast-text { font-size: 14px; font-weight: 500; }
+
+/* ── LOADING ── */
+.loading-overlay {
+  display: none; position: fixed; inset: 0; z-index: 400;
+  background: rgba(15,40,90,0.88); backdrop-filter: blur(8px);
+  align-items: center; justify-content: center; flex-direction: column; gap: 16px;
+}
+.loading-overlay.show { display: flex; }
+.spinner {
+  width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.15);
+  border-top-color: #4da3ff; border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 14px; color: rgba(255,255,255,0.65); }
+
+/* ── EMPTY STATE ── */
+.empty-state {
+  text-align: center; padding: 60px 32px;
+  display: flex; flex-direction: column; align-items: center; gap: 12px;
+}
+.empty-icon { font-size: 48px; opacity: 0.4; }
+.empty-title { font-size: 16px; font-weight: 600; color: var(--text2); }
+.empty-sub { font-size: 14px; color: var(--text3); }
+
+/* ── FILTER BAR ── */
+.filter-bar { padding: 8px 12px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; }
+.filter-bar::-webkit-scrollbar { display: none; }
+.filter-chip {
+  flex-shrink: 0; padding: 6px 14px; border-radius: 20px;
+  font-size: 12px; font-weight: 600; border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.08); color: rgba(255,255,255,0.75); cursor: pointer; transition: all 0.15s;
+}
+.filter-chip.active { background: #4da3ff; color: #fff; border-color: #4da3ff; }
+
+/* ── FAB ── */
+.fab {
+  position: fixed; right: 20px; bottom: 76px; z-index: 50;
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--accent); color: #fff; border: none;
+  font-size: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 20px rgba(59,130,246,0.5); transition: all 0.15s;
+}
+.fab:active { transform: scale(0.92); }
+
+/* ── BACK BUTTON ── */
+.back-btn {
+  display: flex; align-items: center; gap: 8px; padding: 12px 16px 4px;
+  font-size: 14px; font-weight: 600; color: var(--accent); cursor: pointer;
+  background: none; border: none;
+}
+
+.photo-preview {
+  width: 100%; aspect-ratio: 4/3; background: rgba(255,255,255,0.06);
+  border: 2px dashed rgba(255,255,255,0.2); border-radius: var(--radius-sm);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  cursor: pointer; gap: 8px; overflow: hidden; position: relative;
+}
+.photo-preview img { width: 100%; height: 100%; object-fit: cover; position: absolute; inset: 0; }
+.photo-preview-text { font-size: 13px; color: var(--text2); }
+.photo-preview-icon { font-size: 32px; opacity: 0.4; }
+
+.status-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 6px; }
+.dot-scrap { background: var(--red); }
+.dot-retrabajo { background: var(--amber); }
+.dot-pendiente { background: var(--accent); }
+.dot-concesion { background: var(--green); }
+
+.ing-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--purple-bg); color: var(--purple);
+  border: 1px solid rgba(139,92,246,0.25);
+  padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700;
+}
+
+@media (max-width: 380px) {
+  .disposicion-grid { grid-template-columns: 1fr; }
+  .disp-option { flex-direction: row; text-align: left; }
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="loginScreen">
+  <div class="login-screen">
+    <div class="login-logo">
+      <div class="login-logo-text">PROSHALE</div>
+    </div>
+    <h1 class="login-title">Sistema de Gestión NCR</h1>
+    <p class="login-sub">Control de No Conformidades · Planta CNC<br>Oil &amp; Gas</p>
+    <div class="login-card" style="width:100%;max-width:360px">
+      <div class="login-form">
+        <div class="form-group">
+          <label class="form-label">Email corporativo</label>
+          <input class="form-input" id="loginEmail" type="email" placeholder="usuario@proshale.us" autocomplete="email">
+        </div>
+        <button class="btn btn-primary" onclick="doLogin()" style="margin-top:4px">Ingresar</button>
+        <p class="login-separator">Los permisos se asignan según tu rol</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- APP (oculta hasta login) -->
+<div id="appShell" style="display:none">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-logo" style="gap:12px">
+      <div class="logo-icon">
+        <span class="logo-proshale">PRO<span>S</span></span>
+      </div>
+      <div class="topbar-divider"></div>
+      <div class="topbar-title"><strong>NCR</strong> <span id="topbarRole"></span></div>
+    </div>
+    <div class="user-pill" onclick="showLogout()">
+      <div class="user-avatar" id="userAvatar">?</div>
+      <span class="user-email" id="userEmailDisplay"></span>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- ══ SCREEN: LISTA NCR ══ -->
+    <div class="screen active" id="screenLista">
+      <div class="section-header">
+        <span class="section-title">Desvíos registrados</span>
+        <span class="badge badge-gray" id="totalCount">0 total</span>
+      </div>
+      <div class="filter-bar" id="filterBar">
+        <div class="filter-chip active" data-filter="todos" onclick="setFilter('todos',this)">Todos</div>
+        <div class="filter-chip" data-filter="Pendiente Ingeniería" onclick="setFilter('Pendiente Ingeniería',this)">⏳ Pendientes</div>
+        <div class="filter-chip" data-filter="Scrap" onclick="setFilter('Scrap',this)">🗑 Scrap</div>
+        <div class="filter-chip" data-filter="Retrabajo" onclick="setFilter('Retrabajo',this)">🔧 Retrabajo</div>
+        <div class="filter-chip" data-filter="Liberado Bajo Concesión" onclick="setFilter('Liberado Bajo Concesión',this)">✅ Concesión</div>
+      </div>
+      <div class="ncr-list" id="ncrList">
+        <div class="empty-state">
+          <div class="empty-icon">📋</div>
+          <div class="empty-title">Cargando registros...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN: NUEVO NCR ══ -->
+    <div class="screen" id="screenNuevo">
+      <button class="back-btn" onclick="showScreen('screenLista')">← Volver</button>
+      <div class="section-header">
+        <span class="section-title">Nuevo desvío</span>
+      </div>
+      <div class="form-wrap">
+
+        <div class="form-section-title">📦 Información de la pieza</div>
+
+        <div class="form-group">
+          <label class="form-label">Orden de Fabricación (OF)<span>*</span></label>
+          <input class="form-input" id="fOF" type="text" placeholder="Ej: OF-2025-001">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="form-group">
+            <label class="form-label">N° Plano<span>*</span></label>
+            <input class="form-input" id="fPlano" type="text" placeholder="PLN-001">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Revisión</label>
+            <input class="form-input" id="fRevision" type="text" placeholder="A">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">N° de pieza<span>*</span></label>
+          <input class="form-input" id="fPieza" type="text" placeholder="Ej: PZA-4821">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Máquina CNC<span>*</span></label>
+          <select class="form-select" id="fMaquina">
+            <option value="">Seleccionar máquina...</option>
+            <option>T01</option><option>T02</option><option>TP01</option>
+            <option>CMV01</option><option>S01</option>
+          </select>
+        </div>
+
+        <div class="form-section-title">⚠️ Desvío detectado</div>
+
+        <div class="form-group">
+          <label class="form-label">Motivo del desvío<span>*</span></label>
+          <select class="form-select" id="fMotivo">
+            <option value="">Seleccionar motivo...</option>
+            <option>Dimensión fuera de tolerancia</option>
+            <option>Acabado superficial deficiente</option>
+            <option>Material incorrecto</option>
+            <option>Rotura de herramienta</option>
+            <option>Error de programación CNC</option>
+            <option>Deformación por calor</option>
+            <option>Porosidad o inclusión</option>
+            <option>Rosca dañada</option>
+            <option>Error de mecanizado</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Descripción del problema<span>*</span></label>
+          <textarea class="form-textarea" id="fDescripcion" placeholder="Describí en detalle qué desvío encontraste, dónde está en la pieza, qué medición obteniste vs. lo esperado..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Comentario adicional</label>
+          <textarea class="form-textarea" id="fComentario" placeholder="Información adicional relevante..." style="min-height:60px"></textarea>
+        </div>
+
+        <div class="form-section-title">📸 Evidencia fotográfica</div>
+        <div class="form-group">
+          <label class="form-label">Foto de la pieza<span>*</span></label>
+          <div class="photo-preview" onclick="document.getElementById('fFoto').click()">
+            <span class="photo-preview-icon">📷</span>
+            <span class="photo-preview-text">Tocar para tomar foto o adjuntar imagen</span>
+            <img id="fotoPreview" src="" alt="" style="display:none">
+          </div>
+          <input type="file" id="fFoto" accept="image/*" capture="environment" style="display:none" onchange="previewFoto(this)">
+        </div>
+
+        <div class="form-section-title">🔀 Disposición inicial</div>
+        <div class="form-group">
+          <label class="form-label">¿Qué hacemos con esta pieza?<span>*</span></label>
+          <div class="disposicion-grid">
+            <div class="disp-option" id="dScrap" onclick="selectDisp('Scrap')">
+              <span class="disp-icon">🗑</span>
+              <span class="disp-label">Scrap</span>
+            </div>
+            <div class="disp-option" id="dRetrabajo" onclick="selectDisp('Retrabajo')">
+              <span class="disp-icon">🔧</span>
+              <span class="disp-label">Retrabajo</span>
+            </div>
+            <div class="disp-option" id="dDesvio" onclick="selectDisp('Pedido de Desvío')">
+              <span class="disp-icon">📋</span>
+              <span class="disp-label">Pedir Desvío</span>
+            </div>
+          </div>
+        </div>
+
+        <button class="btn btn-primary" onclick="submitNCR()" style="margin-top:8px;margin-bottom:16px">
+          Registrar desvío
+        </button>
+      </div>
+    </div>
+
+    <!-- ══ SCREEN: DETALLE NCR ══ -->
+    <div class="screen" id="screenDetalle">
+      <button class="back-btn" onclick="showScreen('screenLista')">← Volver</button>
+      <div class="detail-wrap" id="detalleContent"></div>
+    </div>
+
+    <!-- ══ SCREEN: DASHBOARD ══ -->
+    <div class="screen" id="screenDash">
+      <div class="section-header">
+        <span class="section-title">Dashboard de calidad</span>
+      </div>
+      <div class="dash-grid" id="dashKPIs"></div>
+      <div class="chart-bar-wrap">
+        <div class="chart-card" id="chartMotivos"></div>
+      </div>
+      <div class="chart-bar-wrap">
+        <div class="chart-card" id="chartMaquinas"></div>
+      </div>
+    </div>
+
+  </div><!-- /main -->
+
+  <!-- BOTTOM NAV -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" id="nav-lista" onclick="navTo('lista')">
+      <span class="nav-icon">📋</span>Lista
+    </button>
+    <button class="nav-item" id="nav-nuevo" onclick="navTo('nuevo')">
+      <span class="nav-icon">＋</span>Nuevo
+    </button>
+    <button class="nav-item" id="nav-dash" onclick="navTo('dash')">
+      <span class="nav-icon">📊</span>Dashboard
+    </button>
+  </nav>
+
+</div><!-- /appShell -->
+
+<!-- MODAL DISPOSICIÓN INGENIERÍA -->
+<div class="modal-overlay" id="modalDisp">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalTitle">Confirmar disposición</div>
+    <div class="modal-body" id="modalBody">¿Confirmás esta disposición?</div>
+    <div class="modal-actions">
+      <button class="btn" id="modalConfirmBtn" onclick="confirmDisp()">Confirmar</button>
+      <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL LOGOUT -->
+<div class="modal-overlay" id="modalLogout">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Cerrar sesión</div>
+    <div class="modal-body" id="logoutEmail"></div>
+    <div class="modal-actions">
+      <button class="btn btn-danger" onclick="doLogout()">Cerrar sesión</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('modalLogout').classList.remove('open')">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text" id="loadingText">Guardando...</div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon" id="toastIcon">✅</span>
+  <span class="toast-text" id="toastText"></span>
+</div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbxtjieOT7-DnT3I3GU74OrfRWlKn-9SE9kNEsX4nrX_tqN9kuusMNn1nhIMqeOzp-ZnJA/exec';
+
+// ── INGENIERÍA WHITELIST (editar aquí o cargar desde INGENIERIA sheet) ──
+const INGENIERIA_EMAILS = ['bvaldebenito@proshale.us', 'cbrendstrup@proshale.us'];
+
+// ── STATE ──
+let currentUser = null;
+let esIngenieria = false;
+let allNCR = [];
+let currentFilter = 'todos';
+let pendingDisp = null;
+let pendingNCRId = null;
+let pendingComentario = '';
+
+// ── COLUMNS ──
+const COLS = ['ID_Desvio','Fecha','Operario_Carga','OF','Numero_Plano','Revision',
+  'Numero_Pieza','Maquina','Responsable','Motivo_Desvio','Descripcion_Desvio',
+  'Comentario_Adicional','Evidencia_Fotografica','Disposicion_Inicial',
+  'Requiere_Ingenieria','Estado','Disposicion_Final','Comentario_Ingenieria',
+  'Fecha_Cierre','Responsable_Cierre'];
+
+function rowToObj(row) {
+  const obj = {};
+  COLS.forEach((c,i) => obj[c] = row[i] || '');
+  return obj;
+}
+
+// ── LOGIN ──
+function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim().toLowerCase();
+  if (!email || !email.includes('@')) { showToast('⚠️','Ingresá un email válido'); return; }
+  currentUser = email;
+  esIngenieria = INGENIERIA_EMAILS.includes(email);
+  document.getElementById('userEmailDisplay').textContent = email;
+  document.getElementById('userAvatar').textContent = email[0].toUpperCase();
+  document.getElementById('topbarRole').textContent = esIngenieria ? '· Ingeniería' : '· Operario';
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = 'block';
+  loadNCR();
+}
+
+function showLogout() {
+  document.getElementById('logoutEmail').textContent = `Sesión activa: ${currentUser}`;
+  document.getElementById('modalLogout').classList.add('open');
+}
+function doLogout() {
+  location.reload();
+}
+
+// ── LOAD DATA ──
+async function loadNCR() {
+  showLoading('Cargando registros...');
+  try {
+    const res = await fetch(API + '?action=get');
+    const raw = await res.json();
+    // skip header row
+    const rows = raw.slice(1).filter(r => r[0]);
+    allNCR = rows.map(rowToObj);
+    renderLista();
+    renderDash();
+  } catch(e) {
+    showToast('❌','Error al cargar datos. Verificá la conexión.');
+    renderLista();
+  }
+  hideLoading();
+}
+
+// ── RENDER LISTA ──
+let selectedFilter = 'todos';
+function setFilter(f, el) {
+  selectedFilter = f;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  renderLista();
+}
+
+function renderLista() {
+  let data = allNCR;
+  if (!esIngenieria) data = data.filter(n => n.Operario_Carga === currentUser);
+  if (selectedFilter !== 'todos') data = data.filter(n => n.Estado === selectedFilter);
+
+  document.getElementById('totalCount').textContent = `${data.length} total`;
+  const list = document.getElementById('ncrList');
+
+  if (data.length === 0) {
+    list.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">📋</div>
+      <div class="empty-title">Sin registros</div>
+      <div class="empty-sub">${esIngenieria ? 'No hay NCR con este filtro.' : 'No registraste desvíos aún.'}</div>
+    </div>`;
+    return;
+  }
+
+  // sort newest first
+  data = [...data].sort((a,b) => new Date(b.Fecha) - new Date(a.Fecha));
+
+  list.innerHTML = data.map(n => {
+    const estadoClass = estadoToClass(n.Estado);
+    const badgeClass = estadoToBadge(n.Estado);
+    const fecha = formatFecha(n.Fecha);
+    return `<div class="ncr-card estado-${estadoClass}" onclick="openDetalle('${n.ID_Desvio}')">
+      <div class="card-top">
+        <div>
+          <div class="card-id">${n.ID_Desvio}</div>
+          <div class="card-title">${n.OF || '—'} · ${n.Numero_Plano || '—'}</div>
+          <div class="card-sub">${n.Motivo_Desvio || '—'}</div>
+        </div>
+        <span class="badge ${badgeClass}">${n.Estado}</span>
+      </div>
+      <div class="card-meta">
+        <span class="badge badge-gray">🔩 ${n.Maquina || '—'}</span>
+        <span class="badge badge-gray">📅 ${fecha}</span>
+        ${n.Operario_Carga ? `<span class="badge badge-gray">👤 ${n.Operario_Carga.split('@')[0]}</span>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── DETALLE ──
+function openDetalle(id) {
+  const n = allNCR.find(x => x.ID_Desvio === id);
+  if (!n) return;
+  const isEng = esIngenieria;
+  const isPending = n.Estado === 'Pendiente Ingeniería';
+
+  let html = `
+    <div class="detail-hero">
+      <div class="detail-id">${n.ID_Desvio}</div>
+      <div class="detail-title">${n.OF || '—'} · ${n.Numero_Plano || '—'}</div>
+      <div class="detail-sub" style="margin-bottom:10px">${n.Motivo_Desvio || '—'}</div>
+      <span class="badge ${estadoToBadge(n.Estado)}">${n.Estado}</span>
+      ${isEng ? ' <span class="ing-badge">⚙️ Ingeniería</span>' : ''}
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">📦 Información de la pieza</div>
+      ${dr('Orden de Fabricación', n.OF)}
+      ${dr('Plano / Rev.', `${n.Numero_Plano} · Rev. ${n.Revision || '—'}`)}
+      ${dr('N° Pieza', n.Numero_Pieza)}
+      ${dr('Máquina', n.Maquina)}
+      ${dr('Responsable', n.Responsable || n.Operario_Carga)}
+      ${dr('Fecha registro', formatFecha(n.Fecha))}
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">⚠️ Desvío</div>
+      ${dr('Motivo', n.Motivo_Desvio)}
+      <div class="detail-row"><span class="detail-key">Descripción</span></div>
+      <p style="font-size:13px;color:var(--text);padding:8px 0;line-height:1.6">${n.Descripcion_Desvio || '—'}</p>
+      ${n.Comentario_Adicional ? `<div class="detail-row"><span class="detail-key">Comentario</span></div><p style="font-size:13px;color:var(--text2);padding:4px 0;line-height:1.6">${n.Comentario_Adicional}</p>` : ''}
+    </div>
+
+    ${n.Evidencia_Fotografica ? `<div class="detail-section">
+      <div class="detail-section-title">📸 Evidencia</div>
+      <img src="${n.Evidencia_Fotografica}" style="width:100%;border-radius:8px;margin-top:8px;display:block" onerror="this.style.display='none'">
+      <a href="${n.Evidencia_Fotografica}" target="_blank"
+        style="display:block;text-align:center;margin-top:10px;color:#4da3ff;font-size:13px;font-weight:600;text-decoration:none;">
+        🔗 Abrir foto en Google Drive
+      </a>
+    </div>` : ''}
+
+    <div class="detail-section">
+      <div class="detail-section-title">🔀 Disposición</div>
+      ${dr('Disposición inicial', n.Disposicion_Inicial)}
+      ${dr('Estado actual', n.Estado)}
+      ${n.Disposicion_Final ? dr('Disposición final', n.Disposicion_Final) : ''}
+      ${n.Comentario_Ingenieria ? `<div class="detail-row"><span class="detail-key">Análisis Ingeniería</span></div><p style="font-size:13px;color:var(--text2);padding:4px 0;line-height:1.6">${n.Comentario_Ingenieria}</p>` : ''}
+      ${n.Fecha_Cierre ? dr('Fecha cierre', formatFecha(n.Fecha_Cierre)) : ''}
+      ${n.Responsable_Cierre ? dr('Cerrado por', n.Responsable_Cierre) : ''}
+    </div>`;
+
+  // BOTONES INGENIERÍA
+  if (isEng && isPending) {
+    html += `<div class="action-zone">
+      <div class="action-zone-title">⚙️ Disposición de Ingeniería</div>
+      <div class="ing-comment">
+        <label class="form-label" style="margin-bottom:6px;display:block">Comentario técnico (opcional)</label>
+        <textarea id="ingComentario" placeholder="Análisis de causa raíz, decisión técnica..."></textarea>
+      </div>
+      <div class="action-buttons" style="margin-top:12px">
+        <button class="btn btn-danger" onclick="openModal('Scrap','${n.ID_Desvio}')">🗑 Disponer como Scrap</button>
+        <button class="btn btn-warning" onclick="openModal('Retrabajo','${n.ID_Desvio}')">🔧 Disponer como Retrabajo</button>
+        <button class="btn btn-success" onclick="openModal('Liberado Bajo Concesión','${n.ID_Desvio}')">✅ Liberar Bajo Concesión</button>
+      </div>
+    </div>`;
+  }
+
+  html += '<div style="height:16px"></div>';
+
+  document.getElementById('detalleContent').innerHTML = html;
+  showScreen('screenDetalle');
+}
+
+function dr(key, val) {
+  return `<div class="detail-row"><span class="detail-key">${key}</span><span class="detail-val">${val || '—'}</span></div>`;
+}
+
+// ── MODAL DISPOSICIÓN ──
+function openModal(disp, id) {
+  pendingDisp = disp;
+  pendingNCRId = id;
+  const icons = { 'Scrap':'🗑', 'Retrabajo':'🔧', 'Liberado Bajo Concesión':'✅' };
+  const colors = { 'Scrap':'btn-danger', 'Retrabajo':'btn-warning', 'Liberado Bajo Concesión':'btn-success' };
+  document.getElementById('modalTitle').textContent = `${icons[disp]} Confirmar: ${disp}`;
+  document.getElementById('modalBody').textContent = `¿Confirmás que el NCR ${id} queda con disposición "${disp}"? Esta acción no puede revertirse.`;
+  const btn = document.getElementById('modalConfirmBtn');
+  btn.className = `btn ${colors[disp]}`;
+  btn.textContent = `Confirmar ${disp}`;
+  document.getElementById('modalDisp').classList.add('open');
+}
+function closeModal() { document.getElementById('modalDisp').classList.remove('open'); }
+
+async function confirmDisp() {
+  closeModal();
+  const comentario = document.getElementById('ingComentario') ? document.getElementById('ingComentario').value : '';
+  showLoading('Aplicando disposición...');
+
+  const idx = allNCR.findIndex(x => x.ID_Desvio === pendingNCRId);
+  if (idx === -1) { hideLoading(); return; }
+
+  const ncr = { ...allNCR[idx] };
+  ncr.Estado = pendingDisp;
+  ncr.Disposicion_Final = pendingDisp;
+  ncr.Fecha_Cierre = new Date().toISOString();
+  ncr.Responsable_Cierre = currentUser;
+  if (comentario) ncr.Comentario_Ingenieria = comentario;
+
+  allNCR[idx] = ncr;
+
+  try {
+    const rowData = COLS.map(c => ncr[c] || '');
+    // find row index in sheet (row 1 = headers, so NCR idx+2)
+    await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'update', rowIndex: idx + 2, data: rowData })
+    });
+    showToast('✅', `Disposición "${pendingDisp}" aplicada correctamente`);
+  } catch(e) {
+    showToast('⚠️', 'Guardado local. Reconectar para sincronizar.');
+  }
+  hideLoading();
+  renderLista();
+  renderDash();
+  showScreen('screenLista');
+}
+
+// ── NUEVO NCR ──
+let selectedDisp = '';
+function selectDisp(d) {
+  selectedDisp = d;
+  document.getElementById('dScrap').className = 'disp-option' + (d==='Scrap'?' selected-scrap':'');
+  document.getElementById('dRetrabajo').className = 'disp-option' + (d==='Retrabajo'?' selected-retrabajo':'');
+  document.getElementById('dDesvio').className = 'disp-option' + (d==='Pedido de Desvío'?' selected-desvio':'');
+}
+
+function previewFoto(input) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById('fotoPreview');
+    img.src = e.target.result;
+    img.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitNCR() {
+  const of = document.getElementById('fOF').value.trim();
+  const plano = document.getElementById('fPlano').value.trim();
+  const pieza = document.getElementById('fPieza').value.trim();
+  const maquina = document.getElementById('fMaquina').value;
+  const motivo = document.getElementById('fMotivo').value;
+  const desc = document.getElementById('fDescripcion').value.trim();
+
+  if (!of || !plano || !pieza || !maquina || !motivo || !desc || !selectedDisp) {
+    showToast('⚠️','Completá todos los campos obligatorios y seleccioná la disposición');
+    return;
+  }
+
+  // Generar ID correlativo D-01, D-02...
+  const existingIds = allNCR.map(n => n.ID_Desvio).filter(id => id && id.startsWith('D-'));
+  const maxNum = existingIds.reduce((max, id) => {
+    const num = parseInt(id.split('-')[1]) || 0;
+    return num > max ? num : max;
+  }, 0);
+  const id = `D-${String(maxNum + 1).padStart(2, '0')}`;
+
+  const estado = selectedDisp === 'Pedido de Desvío' ? 'Pendiente Ingeniería' : selectedDisp;
+  const reqIng = selectedDisp === 'Pedido de Desvío' ? 'TRUE' : 'FALSE';
+
+  // Subir imagen a Drive si hay foto
+  let fotoSrc = '';
+  const fotoFile = document.getElementById('fFoto').files[0];
+  if (fotoFile) {
+    showLoading('Subiendo imagen...');
+    fotoSrc = await subirImagen(fotoFile);
+  }
+
+  showLoading('Guardando NCR...');
+
+  const now = new Date();
+  const row = [
+    id,
+    now.toISOString(),
+    currentUser,
+    of,
+    plano,
+    document.getElementById('fRevision').value.trim(),
+    pieza,
+    maquina,
+    currentUser,
+    motivo,
+    desc,
+    document.getElementById('fComentario').value.trim(),
+    fotoSrc,
+    selectedDisp,
+    reqIng,
+    estado,
+    '', '', '', ''
+  ];
+
+  const newNCR = rowToObj(row);
+  allNCR.unshift(newNCR);
+
+  try {
+    await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'add', data: row })
+    });
+    showToast('✅', `NCR ${id} registrado correctamente`);
+  } catch(e) {
+    showToast('⚠️','Guardado local. Se sincronizará al reconectar.');
+  }
+
+  // reset form
+  ['fOF','fPlano','fRevision','fPieza','fDescripcion','fComentario'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fMaquina').value = '';
+  document.getElementById('fMotivo').value = '';
+  document.getElementById('fotoPreview').src = '';
+  document.getElementById('fotoPreview').style.display = 'none';
+  document.getElementById('fFoto').value = '';
+  selectDisp('');
+
+  hideLoading();
+  renderLista();
+  renderDash();
+  navTo('lista');
+}
+
+// ── SUBIR IMAGEN A GOOGLE DRIVE ──
+async function subirImagen(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = async (e) => {
+      const base64 = e.target.result.split(',')[1];
+      const mimeType = file.type;
+      const filename = `NCR_${Date.now()}.${file.name.split('.').pop()}`;
+      try {
+        const res = await fetch(API, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'uploadImage', base64, mimeType, filename })
+        });
+        const data = await res.json();
+        resolve(data.url || '');
+      } catch {
+        resolve('');
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+// ── DASHBOARD ──
+function renderDash() {
+  const data = esIngenieria ? allNCR : allNCR.filter(n => n.Operario_Carga === currentUser);
+
+  const total = data.length;
+  const scrap = data.filter(n => n.Estado === 'Scrap').length;
+  const retrabajo = data.filter(n => n.Estado === 'Retrabajo').length;
+  const pendiente = data.filter(n => n.Estado === 'Pendiente Ingeniería').length;
+  const concesion = data.filter(n => n.Estado === 'Liberado Bajo Concesión').length;
+
+  const cerrados = data.filter(n => n.Fecha_Cierre && n.Fecha);
+  const tiempos = cerrados.map(n => {
+    const d = (new Date(n.Fecha_Cierre) - new Date(n.Fecha)) / 86400000;
+    return isNaN(d) ? null : d;
+  }).filter(d => d !== null && d >= 0);
+  const avgDias = tiempos.length > 0 ? (tiempos.reduce((a,b) => a+b, 0) / tiempos.length).toFixed(1) : '—';
+  const pctScrap = total > 0 ? Math.round(scrap/total*100) : 0;
+
+  document.getElementById('dashKPIs').innerHTML = `
+    <div class="kpi-card"><div class="kpi-label">Total NCR</div><div class="kpi-value kpi-blue">${total}</div><div class="kpi-sub">registros</div></div>
+    <div class="kpi-card"><div class="kpi-label">Pendientes</div><div class="kpi-value ${pendiente > 0 ? 'kpi-blue' : 'kpi-green'}">${pendiente}</div><div class="kpi-sub">sin resolver</div></div>
+    <div class="kpi-card"><div class="kpi-label">Scrap</div><div class="kpi-value kpi-red">${scrap}</div><div class="kpi-sub">${pctScrap}% del total</div></div>
+    <div class="kpi-card"><div class="kpi-label">Retrabajo</div><div class="kpi-value kpi-amber">${retrabajo}</div><div class="kpi-sub">piezas</div></div>
+    <div class="kpi-card"><div class="kpi-label">Concesión</div><div class="kpi-value kpi-green">${concesion}</div><div class="kpi-sub">liberadas</div></div>
+    <div class="kpi-card"><div class="kpi-label">Tiempo promedio</div><div class="kpi-value kpi-blue">${avgDias}</div><div class="kpi-sub">días resolución</div></div>
+  `;
+
+  // top motivos
+  const motivos = {};
+  data.forEach(n => { if (n.Motivo_Desvio) motivos[n.Motivo_Desvio] = (motivos[n.Motivo_Desvio]||0)+1; });
+  const topMotivos = Object.entries(motivos).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const maxM = topMotivos[0]?.[1] || 1;
+  document.getElementById('chartMotivos').innerHTML = `<div class="chart-title">Top motivos de desvío</div>` +
+    (topMotivos.length === 0 ? '<p style="font-size:13px;color:var(--text3)">Sin datos</p>' :
+    topMotivos.map(([m,c]) => `<div class="bar-row">
+      <span class="bar-label">${m}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/maxM*100)}%;background:var(--accent)"></div></div>
+      <span class="bar-count">${c}</span>
+    </div>`).join(''));
+
+  // top maquinas
+  const maquinas = {};
+  data.forEach(n => { if (n.Maquina) maquinas[n.Maquina] = (maquinas[n.Maquina]||0)+1; });
+  const topMaq = Object.entries(maquinas).sort((a,b)=>b[1]-a[1]).slice(0,6);
+  const maxMaq = topMaq[0]?.[1] || 1;
+  document.getElementById('chartMaquinas').innerHTML = `<div class="chart-title">NCR por máquina</div>` +
+    (topMaq.length === 0 ? '<p style="font-size:13px;color:var(--text3)">Sin datos</p>' :
+    topMaq.map(([m,c]) => `<div class="bar-row">
+      <span class="bar-label">${m}</span>
+      <div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/maxMaq*100)}%;background:var(--red)"></div></div>
+      <span class="bar-count">${c}</span>
+    </div>`).join(''));
+}
+
+// ── NAV ──
+function navTo(tab) {
+  const map = { lista: 'screenLista', nuevo: 'screenNuevo', dash: 'screenDash' };
+  showScreen(map[tab]);
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('nav-' + tab).classList.add('active');
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// ── HELPERS ──
+function estadoToClass(e) {
+  if (e === 'Scrap') return 'scrap';
+  if (e === 'Retrabajo') return 'retrabajo';
+  if (e === 'Pendiente Ingeniería') return 'pendiente';
+  if (e === 'Liberado Bajo Concesión') return 'concesion';
+  return 'pendiente';
+}
+function estadoToBadge(e) {
+  if (e === 'Scrap') return 'badge-scrap';
+  if (e === 'Retrabajo') return 'badge-retrabajo';
+  if (e === 'Pendiente Ingeniería') return 'badge-pendiente';
+  if (e === 'Liberado Bajo Concesión') return 'badge-concesion';
+  return 'badge-gray';
+}
+function formatFecha(iso) {
+  if (!iso) return '—';
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  } catch { return iso; }
+}
+
+function showLoading(txt) {
+  document.getElementById('loadingText').textContent = txt || 'Cargando...';
+  document.getElementById('loadingOverlay').classList.add('show');
+}
+function hideLoading() { document.getElementById('loadingOverlay').classList.remove('show'); }
+
+let toastTimer;
+function showToast(icon, text) {
+  clearTimeout(toastTimer);
+  document.getElementById('toastIcon').textContent = icon;
+  document.getElementById('toastText').textContent = text;
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  toastTimer = setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ── CONFIGURAR INGENIERÍA ──
+// Para agregar ingenieros: editá el array INGENIERIA_EMAILS al principio del script
+// Ejemplo: const INGENIERIA_EMAILS = ['ingeniero@empresa.com', 'calidad@empresa.com'];
+// O cargalos dinámicamente desde la hoja INGENIERIA si la tenés configurada.
+
+// close modals on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+</script>
+</body>
+</html>
