@@ -734,7 +734,6 @@ function setFilter(f, el) {
 
 function renderLista() {
   let data = allNCR;
-  if (!esIngenieria) data = data.filter(n => n.Operario_Carga === currentUser);
   if (selectedFilter !== 'todos') data = data.filter(n => n.Estado === selectedFilter);
 
   document.getElementById('totalCount').textContent = `${data.length} total`;
