@@ -507,12 +507,14 @@ body {
           <input class="form-input" id="fPieza" type="text" placeholder="Ej: PZA-4821">
         </div>
         <div class="form-group">
-          <label class="form-label">Máquina CNC<span>*</span></label>
+          <label class="form-label">Máquina / Origen<span>*</span></label>
           <select class="form-select" id="fMaquina">
-            <option value="">Seleccionar máquina...</option>
+            <option value="">Seleccionar...</option>
             <option>T01</option><option>T02</option><option>TP01</option>
             <option>CMV01</option><option>S01</option>
+            <option>Proveedor externo</option>
           </select>
+          <input class="form-input" id="fMaquinaLibre" type="text" placeholder="Especificá el proveedor o equipo..." style="display:none;margin-top:8px">
         </div>
 
         <div class="form-section-title">⚠️ Desvío detectado</div>
@@ -888,7 +890,7 @@ async function confirmDisp() {
     // find row index in sheet (row 1 = headers, so NCR idx+2)
     await fetch(API, {
       method: 'POST',
-      body: JSON.stringify({ action: 'update', rowIndex: idx + 2, data: rowData })
+      body: JSON.stringify({ action: 'update', rowIndex: idx + 2, data: rowData, notificarCierre: true })
     });
     showToast('✅', `Disposición "${pendingDisp}" aplicada correctamente`);
   } catch(e) {
@@ -925,11 +927,11 @@ async function submitNCR() {
   const of = document.getElementById('fOF').value.trim();
   const plano = document.getElementById('fPlano').value.trim();
   const pieza = document.getElementById('fPieza').value.trim();
-  const maquina = document.getElementById('fMaquina').value;
+  const maquina = getMaquinaValue();
   const motivo = document.getElementById('fMotivo').value;
   const desc = document.getElementById('fDescripcion').value.trim();
 
-  if (!of || !plano || !pieza || !maquina || !motivo || !desc || !selectedDisp) {
+  if (!of || !plano || !pieza || !maquina || maquina === '' || !motivo || !desc || !selectedDisp) {
     showToast('⚠️','Completá todos los campos obligatorios y seleccioná la disposición');
     return;
   }
@@ -992,6 +994,8 @@ async function submitNCR() {
   // reset form
   ['fOF','fPlano','fRevision','fPieza','fDescripcion','fComentario'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('fMaquina').value = '';
+  document.getElementById('fMaquinaLibre').value = '';
+  document.getElementById('fMaquinaLibre').style.display = 'none';
   document.getElementById('fMotivo').value = '';
   document.getElementById('fotoPreview').src = '';
   document.getElementById('fotoPreview').style.display = 'none';
@@ -1002,6 +1006,27 @@ async function submitNCR() {
   renderLista();
   renderDash();
   navTo('lista');
+}
+
+// ── MÁQUINA LIBRE ──
+document.addEventListener('DOMContentLoaded', () => {
+  const sel = document.getElementById('fMaquina');
+  if (sel) {
+    sel.addEventListener('change', () => {
+      const libre = document.getElementById('fMaquinaLibre');
+      libre.style.display = sel.value === 'Proveedor externo' ? 'block' : 'none';
+      if (sel.value !== 'Proveedor externo') libre.value = '';
+    });
+  }
+});
+
+function getMaquinaValue() {
+  const sel = document.getElementById('fMaquina').value;
+  if (sel === 'Proveedor externo') {
+    const libre = document.getElementById('fMaquinaLibre').value.trim();
+    return libre ? `Proveedor: ${libre}` : 'Proveedor externo';
+  }
+  return sel;
 }
 
 // ── SUBIR IMAGEN A GOOGLE DRIVE ──
