@@ -463,6 +463,9 @@ body {
         <span class="section-title">Desvíos registrados</span>
         <span class="badge badge-gray" id="totalCount">0 total</span>
       </div>
+      <div style="padding:0 12px 8px">
+        <input class="form-input" id="searchBox" type="text" placeholder="🔍 Buscar por ID, OF, plano, pieza, motivo, operario..." oninput="renderLista()" style="font-size:14px">
+      </div>
       <div class="filter-bar" id="filterBar">
         <div class="filter-chip active" data-filter="todos" onclick="setFilter('todos',this)">Todos</div>
         <div class="filter-chip" data-filter="Pendiente Ingeniería" onclick="setFilter('Pendiente Ingeniería',this)">⏳ Pendientes</div>
@@ -590,6 +593,27 @@ body {
     <div class="screen" id="screenDash">
       <div class="section-header">
         <span class="section-title">Dashboard de calidad</span>
+      </div>
+      <div style="padding:0 12px 12px">
+        <div class="chart-card" style="padding:14px 16px">
+          <div class="chart-title" style="margin-bottom:10px">📅 Rango de fechas</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <div class="form-group">
+              <label class="form-label" style="font-size:10px">Desde</label>
+              <input class="form-input" id="dashDesde" type="date" style="padding:8px 10px;font-size:13px" oninput="renderDash()">
+            </div>
+            <div class="form-group">
+              <label class="form-label" style="font-size:10px">Hasta</label>
+              <input class="form-input" id="dashHasta" type="date" style="padding:8px 10px;font-size:13px" oninput="renderDash()">
+            </div>
+          </div>
+          <div class="filter-bar" style="padding:10px 0 0;margin:0">
+            <div class="filter-chip" onclick="setDashRange(7)">7 días</div>
+            <div class="filter-chip" onclick="setDashRange(30)">30 días</div>
+            <div class="filter-chip" onclick="setDashRange(90)">90 días</div>
+            <div class="filter-chip active" onclick="clearDashRange()">Todo</div>
+          </div>
+        </div>
       </div>
       <div class="dash-grid" id="dashKPIs"></div>
       <div class="chart-bar-wrap">
@@ -735,6 +759,19 @@ function setFilter(f, el) {
 function renderLista() {
   let data = allNCR;
   if (selectedFilter !== 'todos') data = data.filter(n => n.Estado === selectedFilter);
+
+  const searchBox = document.getElementById('searchBox');
+  const q = searchBox ? searchBox.value.trim().toLowerCase() : '';
+  if (q) {
+    data = data.filter(n => {
+      const haystack = [
+        n.ID_Desvio, n.OF, n.Numero_Plano, n.Numero_Pieza,
+        n.Maquina, n.Motivo_Desvio, n.Descripcion_Desvio,
+        n.Operario_Carga, n.Responsable, n.Estado
+      ].join(' ').toLowerCase();
+      return haystack.includes(q);
+    });
+  }
 
   document.getElementById('totalCount').textContent = `${data.length} total`;
   const list = document.getElementById('ncrList');
@@ -1052,8 +1089,37 @@ async function subirImagen(file) {
 }
 
 // ── DASHBOARD ──
+function setDashRange(days) {
+  const hasta = new Date();
+  const desde = new Date();
+  desde.setDate(desde.getDate() - days);
+  document.getElementById('dashDesde').value = desde.toISOString().split('T')[0];
+  document.getElementById('dashHasta').value = hasta.toISOString().split('T')[0];
+  document.querySelectorAll('#screenDash .filter-chip').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  renderDash();
+}
+function clearDashRange() {
+  document.getElementById('dashDesde').value = '';
+  document.getElementById('dashHasta').value = '';
+  document.querySelectorAll('#screenDash .filter-chip').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  renderDash();
+}
+
 function renderDash() {
-  const data = esIngenieria ? allNCR : allNCR.filter(n => n.Operario_Carga === currentUser);
+  let data = allNCR;
+
+  const desdeVal = document.getElementById('dashDesde')?.value;
+  const hastaVal = document.getElementById('dashHasta')?.value;
+  if (desdeVal) {
+    const desdeDate = new Date(desdeVal + 'T00:00:00');
+    data = data.filter(n => new Date(n.Fecha) >= desdeDate);
+  }
+  if (hastaVal) {
+    const hastaDate = new Date(hastaVal + 'T23:59:59');
+    data = data.filter(n => new Date(n.Fecha) <= hastaDate);
+  }
 
   const total = data.length;
   const scrap = data.filter(n => n.Estado === 'Scrap').length;
