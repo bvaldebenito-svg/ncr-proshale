@@ -150,6 +150,10 @@ body {
 .badge-pendiente { background: var(--blue-bg); color: var(--accent); }
 .badge-concesion { background: var(--green-bg); color: var(--green); }
 .badge-gray { background: rgba(255,255,255,0.07); color: var(--text2); }
+.badge-grav-alto { background: var(--red-bg); color: var(--red); }
+.badge-grav-medio { background: var(--amber-bg); color: var(--amber); }
+.badge-grav-bajo { background: var(--green-bg); color: var(--green); }
+.badge-origen { background: var(--purple-bg); color: var(--purple); }
 
 /* ── BUTTONS ── */
 .btn {
@@ -510,7 +514,7 @@ body {
           <input class="form-input" id="fPieza" type="text" placeholder="Ej: PZA-4821">
         </div>
         <div class="form-group">
-          <label class="form-label">Máquina / Origen<span>*</span></label>
+          <label class="form-label">Máquina / Proveedor<span>*</span></label>
           <select class="form-select" id="fMaquina">
             <option value="">Seleccionar...</option>
             <option>T01</option><option>T02</option><option>TP01</option>
@@ -518,6 +522,28 @@ body {
             <option>Proveedor externo</option>
           </select>
           <input class="form-input" id="fMaquinaLibre" type="text" placeholder="Especificá el proveedor o equipo..." style="display:none;margin-top:8px">
+        </div>
+
+        <div class="form-section-title">🏷️ Clasificación</div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div class="form-group">
+            <label class="form-label">Gravedad<span>*</span></label>
+            <select class="form-select" id="fGravedad">
+              <option value="">Seleccionar...</option>
+              <option value="Alto">🔴 Alto</option>
+              <option value="Medio">🟡 Medio</option>
+              <option value="Bajo">🟢 Bajo</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Origen<span>*</span></label>
+            <select class="form-select" id="fOrigen">
+              <option value="">Seleccionar...</option>
+              <option value="Interno Manufactura">Interno Manufactura</option>
+              <option value="Reclamo Neuquén">Reclamo Neuquén</option>
+            </select>
+          </div>
         </div>
 
         <div class="form-section-title">⚠️ Desvío detectado</div>
@@ -622,6 +648,9 @@ body {
       <div class="chart-bar-wrap">
         <div class="chart-card" id="chartMaquinas"></div>
       </div>
+      <div class="chart-bar-wrap">
+        <button class="btn btn-primary" onclick="exportarInforme()">📥 Exportar informe (CSV)</button>
+      </div>
     </div>
 
   </div><!-- /main -->
@@ -650,6 +679,19 @@ body {
     <div class="modal-actions">
       <button class="btn" id="modalConfirmBtn" onclick="confirmDisp()">Confirmar</button>
       <button class="btn btn-ghost" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL REINSPECCIÓN -->
+<div class="modal-overlay" id="modalReinsp">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="modalReinspTitle">Confirmar reinspección</div>
+    <div class="modal-body" id="modalReinspBody">¿Confirmás el resultado de la reinspección?</div>
+    <div class="modal-actions">
+      <button class="btn" id="modalReinspConfirmBtn" onclick="confirmReinsp()">Confirmar</button>
+      <button class="btn btn-ghost" onclick="document.getElementById('modalReinsp').classList.remove('open')">Cancelar</button>
     </div>
   </div>
 </div>
@@ -695,11 +737,14 @@ let pendingNCRId = null;
 let pendingComentario = '';
 
 // ── COLUMNS ──
+// Gravedad, Origen y Aprobador_Intermedio se agregaron AL FINAL para no romper
+// el mapeo de columnas ya existente en la hoja de Google Sheets.
 const COLS = ['ID_Desvio','Fecha','Operario_Carga','OF','Numero_Plano','Revision',
   'Numero_Pieza','Maquina','Responsable','Motivo_Desvio','Descripcion_Desvio',
   'Comentario_Adicional','Evidencia_Fotografica','Disposicion_Inicial',
   'Requiere_Ingenieria','Estado','Disposicion_Final','Comentario_Ingenieria',
-  'Fecha_Cierre','Responsable_Cierre'];
+  'Fecha_Cierre','Responsable_Cierre','Gravedad','Origen','Aprobador_Intermedio',
+  'Reinspeccion_Resultado','Reinspeccion_Fecha','Reinspeccion_Responsable'];
 
 function rowToObj(row) {
   const obj = {};
@@ -802,12 +847,27 @@ function renderLista() {
         <span class="badge ${badgeClass}">${n.Estado}</span>
       </div>
       <div class="card-meta">
+        ${n.Gravedad ? `<span class="badge ${gravedadToBadge(n.Gravedad)}">${gravedadIcon(n.Gravedad)} ${n.Gravedad}</span>` : ''}
+        ${n.Origen === 'Reclamo Neuquén' ? `<span class="badge badge-origen">📍 Neuquén</span>` : ''}
+        ${n.Estado === 'Retrabajo' && !n.Reinspeccion_Resultado ? `<span class="badge badge-retrabajo">🔁 Pendiente reinspección</span>` : ''}
         <span class="badge badge-gray">🔩 ${n.Maquina || '—'}</span>
         <span class="badge badge-gray">📅 ${fecha}</span>
         ${n.Operario_Carga ? `<span class="badge badge-gray">👤 ${n.Operario_Carga.split('@')[0]}</span>` : ''}
       </div>
     </div>`;
   }).join('');
+}
+function gravedadToBadge(g) {
+  if (g === 'Alto') return 'badge-grav-alto';
+  if (g === 'Medio') return 'badge-grav-medio';
+  if (g === 'Bajo') return 'badge-grav-bajo';
+  return 'badge-gray';
+}
+function gravedadIcon(g) {
+  if (g === 'Alto') return '🔴';
+  if (g === 'Medio') return '🟡';
+  if (g === 'Bajo') return '🟢';
+  return '';
 }
 
 // ── DETALLE ──
@@ -823,6 +883,7 @@ function openDetalle(id) {
       <div class="detail-title">${n.OF || '—'} · ${n.Numero_Plano || '—'}</div>
       <div class="detail-sub" style="margin-bottom:10px">${n.Motivo_Desvio || '—'}</div>
       <span class="badge ${estadoToBadge(n.Estado)}">${n.Estado}</span>
+      ${n.Gravedad ? ` <span class="badge ${gravedadToBadge(n.Gravedad)}">${gravedadIcon(n.Gravedad)} ${n.Gravedad}</span>` : ''}
       ${isEng ? ' <span class="ing-badge">⚙️ Ingeniería</span>' : ''}
     </div>
 
@@ -834,6 +895,7 @@ function openDetalle(id) {
       ${dr('Máquina', n.Maquina)}
       ${dr('Responsable', n.Responsable || n.Operario_Carga)}
       ${dr('Fecha registro', formatFecha(n.Fecha))}
+      ${dr('Origen', n.Origen)}
     </div>
 
     <div class="detail-section">
@@ -861,6 +923,8 @@ function openDetalle(id) {
       ${n.Comentario_Ingenieria ? `<div class="detail-row"><span class="detail-key">Análisis Ingeniería</span></div><p style="font-size:13px;color:var(--text2);padding:4px 0;line-height:1.6">${n.Comentario_Ingenieria}</p>` : ''}
       ${n.Fecha_Cierre ? dr('Fecha cierre', formatFecha(n.Fecha_Cierre)) : ''}
       ${n.Responsable_Cierre ? dr('Cerrado por', n.Responsable_Cierre) : ''}
+      ${n.Aprobador_Intermedio ? dr('Aprobado por', n.Aprobador_Intermedio) : ''}
+      ${n.Reinspeccion_Resultado ? dr('Reinspección', `${n.Reinspeccion_Resultado === 'Aprobado' ? '✅' : '❌'} ${n.Reinspeccion_Resultado} · ${formatFecha(n.Reinspeccion_Fecha)} · ${n.Reinspeccion_Responsable}`) : ''}
     </div>`;
 
   // BOTONES INGENIERÍA
@@ -875,6 +939,18 @@ function openDetalle(id) {
         <button class="btn btn-danger" onclick="openModal('Scrap','${n.ID_Desvio}')">🗑 Disponer como Scrap</button>
         <button class="btn btn-warning" onclick="openModal('Retrabajo','${n.ID_Desvio}')">🔧 Disponer como Retrabajo</button>
         <button class="btn btn-success" onclick="openModal('Liberado Bajo Concesión','${n.ID_Desvio}')">✅ Liberar Bajo Concesión</button>
+      </div>
+    </div>`;
+  }
+
+  // REINSPECCIÓN OBLIGATORIA POST-RETRABAJO
+  if (isEng && n.Estado === 'Retrabajo' && !n.Reinspeccion_Resultado) {
+    html += `<div class="action-zone" style="background:rgba(251,191,36,0.10);border-color:rgba(251,191,36,0.3)">
+      <div class="action-zone-title" style="color:var(--amber)">🔁 Reinspección requerida (pieza retrabajada)</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.5">Según PSH-PG-02, toda pieza con disposición Retrabajo debe reinspeccionarse antes de cerrar el caso.</p>
+      <div class="action-buttons">
+        <button class="btn btn-success" onclick="openModalReinsp('Aprobado','${n.ID_Desvio}')">✅ Reinspección aprobada – Conforme</button>
+        <button class="btn btn-danger" onclick="openModalReinsp('Rechazado','${n.ID_Desvio}')">❌ Reinspección rechazada – Enviar a Scrap</button>
       </div>
     </div>`;
   }
@@ -915,9 +991,17 @@ async function confirmDisp() {
   const ncr = { ...allNCR[idx] };
   ncr.Estado = pendingDisp;
   ncr.Disposicion_Final = pendingDisp;
-  ncr.Fecha_Cierre = new Date().toISOString();
-  ncr.Responsable_Cierre = currentUser;
+  ncr.Aprobador_Intermedio = currentUser; // queda registrado quién aprobó, distinto de quien detectó/propuso
   if (comentario) ncr.Comentario_Ingenieria = comentario;
+
+  if (pendingDisp === 'Retrabajo') {
+    // El caso NO se cierra todavía: la pieza reprocesada requiere reinspección antes del cierre
+    ncr.Fecha_Cierre = '';
+    ncr.Responsable_Cierre = '';
+  } else {
+    ncr.Fecha_Cierre = new Date().toISOString();
+    ncr.Responsable_Cierre = currentUser;
+  }
 
   allNCR[idx] = ncr;
 
@@ -926,10 +1010,66 @@ async function confirmDisp() {
     // find row index in sheet (row 1 = headers, so NCR idx+2)
     await fetch(API, {
       method: 'POST',
-      body: JSON.stringify({ action: 'update', rowIndex: idx + 2, data: rowData, notificarCierre: true })
+      body: JSON.stringify({ action: 'update', rowIndex: idx + 2, data: rowData, notificarCierre: pendingDisp !== 'Retrabajo' })
     });
     showToast('✅', `Disposición "${pendingDisp}" aplicada correctamente`);
   } catch(e) {
+    showToast('⚠️', 'Guardado local. Reconectar para sincronizar.');
+  }
+  hideLoading();
+  renderLista();
+  renderDash();
+  showScreen('screenLista');
+}
+
+// ── REINSPECCIÓN POST-RETRABAJO ──
+let pendingReinsp = null;
+let pendingReinspId = null;
+
+function openModalReinsp(resultado, id) {
+  pendingReinsp = resultado;
+  pendingReinspId = id;
+  if (resultado === 'Aprobado') {
+    document.getElementById('modalReinspTitle').textContent = '✅ Confirmar reinspección aprobada';
+    document.getElementById('modalReinspBody').textContent = `¿Confirmás que la pieza ${id} fue reinspeccionada y quedó conforme? El caso se cerrará.`;
+    document.getElementById('modalReinspConfirmBtn').className = 'btn btn-success';
+  } else {
+    document.getElementById('modalReinspTitle').textContent = '❌ Confirmar reinspección rechazada';
+    document.getElementById('modalReinspBody').textContent = `¿Confirmás que la pieza ${id} no pasó la reinspección? Pasará a disposición Scrap y se cerrará el caso.`;
+    document.getElementById('modalReinspConfirmBtn').className = 'btn btn-danger';
+  }
+  document.getElementById('modalReinsp').classList.add('open');
+}
+
+async function confirmReinsp() {
+  document.getElementById('modalReinsp').classList.remove('open');
+  showLoading('Registrando reinspección...');
+
+  const idx = allNCR.findIndex(x => x.ID_Desvio === pendingReinspId);
+  if (idx === -1) { hideLoading(); return; }
+
+  const ncr = { ...allNCR[idx] };
+  ncr.Reinspeccion_Resultado = pendingReinsp;
+  ncr.Reinspeccion_Fecha = new Date().toISOString();
+  ncr.Reinspeccion_Responsable = currentUser;
+  ncr.Fecha_Cierre = new Date().toISOString();
+  ncr.Responsable_Cierre = currentUser;
+
+  if (pendingReinsp === 'Rechazado') {
+    ncr.Estado = 'Scrap';
+    ncr.Disposicion_Final = 'Scrap';
+  }
+
+  allNCR[idx] = ncr;
+
+  try {
+    const rowData = COLS.map(c => ncr[c] || '');
+    await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'update', rowIndex: idx + 2, data: rowData, notificarCierre: true })
+    });
+    showToast(pendingReinsp === 'Aprobado' ? '✅' : '❌', `Reinspección registrada: ${pendingReinsp}`);
+  } catch (e) {
     showToast('⚠️', 'Guardado local. Reconectar para sincronizar.');
   }
   hideLoading();
@@ -966,8 +1106,10 @@ async function submitNCR() {
   const maquina = getMaquinaValue();
   const motivo = document.getElementById('fMotivo').value;
   const desc = document.getElementById('fDescripcion').value.trim();
+  const gravedad = document.getElementById('fGravedad').value;
+  const origen = document.getElementById('fOrigen').value;
 
-  if (!of || !plano || !pieza || !maquina || maquina === '' || !motivo || !desc || !selectedDisp) {
+  if (!of || !plano || !pieza || !maquina || maquina === '' || !motivo || !desc || !selectedDisp || !gravedad || !origen) {
     showToast('⚠️','Completá todos los campos obligatorios y seleccioná la disposición');
     return;
   }
@@ -1011,7 +1153,11 @@ async function submitNCR() {
     selectedDisp,
     reqIng,
     estado,
-    '', '', '', ''
+    '', '', '', '',
+    gravedad,
+    origen,
+    '',
+    '', '', ''
   ];
 
   const newNCR = rowToObj(row);
@@ -1033,6 +1179,8 @@ async function submitNCR() {
   document.getElementById('fMaquinaLibre').value = '';
   document.getElementById('fMaquinaLibre').style.display = 'none';
   document.getElementById('fMotivo').value = '';
+  document.getElementById('fGravedad').value = '';
+  document.getElementById('fOrigen').value = '';
   document.getElementById('fotoPreview').src = '';
   document.getElementById('fotoPreview').style.display = 'none';
   document.getElementById('fFoto').value = '';
@@ -1128,6 +1276,7 @@ function renderDash() {
   const concesion = data.filter(n => n.Estado === 'Liberado Bajo Concesión').length;
 
   const cerrados = data.filter(n => n.Fecha_Cierre && n.Fecha);
+  const pendReinsp = data.filter(n => n.Estado === 'Retrabajo' && !n.Reinspeccion_Resultado).length;
   const tiempos = cerrados.map(n => {
     const d = (new Date(n.Fecha_Cierre) - new Date(n.Fecha)) / 86400000;
     return isNaN(d) ? null : d;
@@ -1140,6 +1289,7 @@ function renderDash() {
     <div class="kpi-card"><div class="kpi-label">Pendientes</div><div class="kpi-value ${pendiente > 0 ? 'kpi-blue' : 'kpi-green'}">${pendiente}</div><div class="kpi-sub">sin resolver</div></div>
     <div class="kpi-card"><div class="kpi-label">Scrap</div><div class="kpi-value kpi-red">${scrap}</div><div class="kpi-sub">${pctScrap}% del total</div></div>
     <div class="kpi-card"><div class="kpi-label">Retrabajo</div><div class="kpi-value kpi-amber">${retrabajo}</div><div class="kpi-sub">piezas</div></div>
+    <div class="kpi-card"><div class="kpi-label">Pend. reinspección</div><div class="kpi-value ${pendReinsp > 0 ? 'kpi-amber' : 'kpi-green'}">${pendReinsp}</div><div class="kpi-sub">antes de cerrar</div></div>
     <div class="kpi-card"><div class="kpi-label">Concesión</div><div class="kpi-value kpi-green">${concesion}</div><div class="kpi-sub">liberadas</div></div>
     <div class="kpi-card"><div class="kpi-label">Tiempo promedio</div><div class="kpi-value kpi-blue">${avgDias}</div><div class="kpi-sub">días resolución</div></div>
   `;
@@ -1169,6 +1319,75 @@ function renderDash() {
       <div class="bar-track"><div class="bar-fill" style="width:${Math.round(c/maxMaq*100)}%;background:var(--red)"></div></div>
       <span class="bar-count">${c}</span>
     </div>`).join(''));
+}
+
+// ── EXPORTAR INFORME (CSV, respeta el filtro de fecha del dashboard) ──
+function exportarInforme() {
+  let data = allNCR;
+  const desdeVal = document.getElementById('dashDesde')?.value;
+  const hastaVal = document.getElementById('dashHasta')?.value;
+  if (desdeVal) {
+    const d = new Date(desdeVal + 'T00:00:00');
+    data = data.filter(n => new Date(n.Fecha) >= d);
+  }
+  if (hastaVal) {
+    const h = new Date(hastaVal + 'T23:59:59');
+    data = data.filter(n => new Date(n.Fecha) <= h);
+  }
+
+  if (data.length === 0) { showToast('⚠️', 'No hay registros en el rango seleccionado'); return; }
+
+  data = [...data].sort((a,b) => new Date(a.Fecha) - new Date(b.Fecha));
+
+  // Resumen (KPIs) arriba del CSV
+  const total = data.length;
+  const scrap = data.filter(n => n.Estado === 'Scrap').length;
+  const retrabajo = data.filter(n => n.Estado === 'Retrabajo').length;
+  const concesion = data.filter(n => n.Estado === 'Liberado Bajo Concesión').length;
+  const pendiente = data.filter(n => n.Estado === 'Pendiente Ingeniería').length;
+  const pendReinsp = data.filter(n => n.Estado === 'Retrabajo' && !n.Reinspeccion_Resultado).length;
+  const pctScrap = total > 0 ? Math.round(scrap/total*100) : 0;
+
+  const motivos = {};
+  data.forEach(n => { if (n.Motivo_Desvio) motivos[n.Motivo_Desvio] = (motivos[n.Motivo_Desvio]||0)+1; });
+  const topMotivos = Object.entries(motivos).sort((a,b)=>b[1]-a[1]);
+
+  const rango = `${desdeVal || 'inicio'} a ${hastaVal || 'hoy'}`;
+  const lines = [];
+  lines.push(`Informe NCR;Rango: ${rango}`);
+  lines.push('');
+  lines.push('RESUMEN');
+  lines.push(`Total;${total}`);
+  lines.push(`Scrap;${scrap};${pctScrap}%`);
+  lines.push(`Retrabajo;${retrabajo}`);
+  lines.push(`Liberado Bajo Concesión;${concesion}`);
+  lines.push(`Pendiente Ingeniería;${pendiente}`);
+  lines.push(`Pendiente Reinspección;${pendReinsp}`);
+  lines.push('');
+  lines.push('TOP MOTIVOS');
+  topMotivos.forEach(([m,c]) => lines.push(`${m};${c}`));
+  lines.push('');
+  lines.push('DETALLE');
+  lines.push(COLS.join(';'));
+  data.forEach(n => lines.push(COLS.map(c => csvSafe(n[c])).join(';')));
+
+  const csv = '\uFEFF' + lines.join('\n'); // BOM para que Excel abra bien los acentos
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `Informe_NCR_${(desdeVal||'inicio')}_${(hastaVal||'hoy')}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('✅', `Informe exportado (${total} registros)`);
+}
+
+function csvSafe(val) {
+  if (val === undefined || val === null) return '';
+  const s = String(val).replace(/"/g, '""');
+  return s.includes(';') || s.includes('\n') ? `"${s}"` : s;
 }
 
 // ── NAV ──
