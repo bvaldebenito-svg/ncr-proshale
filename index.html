@@ -472,7 +472,9 @@ body {
       </div>
       <div class="filter-bar" id="filterBar">
         <div class="filter-chip active" data-filter="todos" onclick="setFilter('todos',this)">Todos</div>
-        <div class="filter-chip" data-filter="Pendiente Ingeniería" onclick="setFilter('Pendiente Ingeniería',this)">⏳ Pendientes</div>
+        <div class="filter-chip" data-filter="Pendiente Calidad" onclick="setFilter('Pendiente Calidad',this)">🟡 P. Calidad</div>
+        <div class="filter-chip" data-filter="Pendiente Aprobación" onclick="setFilter('Pendiente Aprobación',this)">🔵 P. Aprobación</div>
+        <div class="filter-chip" data-filter="Pendiente Ingeniería" onclick="setFilter('Pendiente Ingeniería',this)">⏳ P. Ingeniería</div>
         <div class="filter-chip" data-filter="Scrap" onclick="setFilter('Scrap',this)">🗑 Scrap</div>
         <div class="filter-chip" data-filter="Retrabajo" onclick="setFilter('Retrabajo',this)">🔧 Retrabajo</div>
         <div class="filter-chip" data-filter="Liberado Bajo Concesión" onclick="setFilter('Liberado Bajo Concesión',this)">✅ Concesión</div>
@@ -513,37 +515,32 @@ body {
           <label class="form-label">N° de pieza<span>*</span></label>
           <input class="form-input" id="fPieza" type="text" placeholder="Ej: PZA-4821">
         </div>
-        <div class="form-group">
-          <label class="form-label">Máquina / Proveedor<span>*</span></label>
-          <select class="form-select" id="fMaquina">
-            <option value="">Seleccionar...</option>
-            <option>T01</option><option>T02</option><option>TP01</option>
-            <option>CMV01</option><option>S01</option>
-            <option>Proveedor externo</option>
-          </select>
-          <input class="form-input" id="fMaquinaLibre" type="text" placeholder="Especificá el proveedor o equipo..." style="display:none;margin-top:8px">
+        <div class="form-section-title">🏭 Origen del desvío</div>
+        <div class="disposicion-grid" style="grid-template-columns:1fr 1fr;margin-bottom:4px">
+          <div class="disp-option" id="origenInterno" onclick="selectOrigen('interno')">
+            <span class="disp-icon">🏭</span>
+            <span class="disp-label">Interno Manufactura</span>
+          </div>
+          <div class="disp-option" id="origenProveedor" onclick="selectOrigen('proveedor')">
+            <span class="disp-icon">🚚</span>
+            <span class="disp-label">Proveedor</span>
+          </div>
         </div>
 
-        <div class="form-section-title">🏷️ Clasificación</div>
+        <!-- Interno: selección de máquina -->
+        <div class="form-group" id="maquinaWrap" style="display:none">
+          <label class="form-label">Máquina CNC<span>*</span></label>
+          <select class="form-select" id="fMaquina">
+            <option value="">Seleccionar máquina...</option>
+            <option>T01</option><option>T02</option><option>TP01</option>
+            <option>CMV01</option><option>S01</option>
+          </select>
+        </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-          <div class="form-group">
-            <label class="form-label">Gravedad<span>*</span></label>
-            <select class="form-select" id="fGravedad">
-              <option value="">Seleccionar...</option>
-              <option value="Alto">🔴 Alto</option>
-              <option value="Medio">🟡 Medio</option>
-              <option value="Bajo">🟢 Bajo</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Origen<span>*</span></label>
-            <select class="form-select" id="fOrigen">
-              <option value="">Seleccionar...</option>
-              <option value="Interno Manufactura">Interno Manufactura</option>
-              <option value="Reclamo Neuquén">Reclamo Neuquén</option>
-            </select>
-          </div>
+        <!-- Proveedor: nombre -->
+        <div class="form-group" id="proveedorNombreWrap" style="display:none">
+          <label class="form-label">Nombre del proveedor<span>*</span></label>
+          <input class="form-input" id="fProveedorNombre" type="text" placeholder="Ej: Aceros del Sur S.A.">
         </div>
 
         <div class="form-section-title">⚠️ Desvío detectado</div>
@@ -584,22 +581,57 @@ body {
           <input type="file" id="fFoto" accept="image/*" capture="environment" style="display:none" onchange="previewFoto(this)">
         </div>
 
-        <div class="form-section-title">🔀 Disposición inicial</div>
-        <div class="form-group">
-          <label class="form-label">¿Qué hacemos con esta pieza?<span>*</span></label>
-          <div class="disposicion-grid">
-            <div class="disp-option" id="dScrap" onclick="selectDisp('Scrap')">
-              <span class="disp-icon">🗑</span>
-              <span class="disp-label">Scrap</span>
+        <!-- ══ DISPOSICIONES INTERNO ══ -->
+        <div id="dispInternoWrap" style="display:none">
+          <div class="form-section-title">🔀 Disposición inicial</div>
+          <div class="form-group">
+            <label class="form-label">¿Qué hacemos con esta pieza?<span>*</span></label>
+            <div class="disposicion-grid" style="grid-template-columns:repeat(2,1fr)">
+              <div class="disp-option" id="dScrap" onclick="selectDisp('Scrap')">
+                <span class="disp-icon">🗑</span><span class="disp-label">Scrap</span>
+              </div>
+              <div class="disp-option" id="dRetrabajo" onclick="selectDisp('Retrabajo')">
+                <span class="disp-icon">🔧</span><span class="disp-label">Retrabajo</span>
+              </div>
+              <div class="disp-option" id="dOtraApp" onclick="selectDisp('Otra Aplicación')">
+                <span class="disp-icon">🔄</span><span class="disp-label">Otra Aplicación</span>
+              </div>
+              <div class="disp-option" id="dDesvio" onclick="selectDisp('Pedido de Desvío')">
+                <span class="disp-icon">📋</span><span class="disp-label">Pedir Desvío</span>
+              </div>
             </div>
-            <div class="disp-option" id="dRetrabajo" onclick="selectDisp('Retrabajo')">
-              <span class="disp-icon">🔧</span>
-              <span class="disp-label">Retrabajo</span>
+          </div>
+          <!-- Comentario retrabajo/otra app interno -->
+          <div class="form-group" id="comentarioInternoWrap" style="display:none">
+            <label class="form-label" id="comentarioInternoLabel">Detalle<span>*</span></label>
+            <textarea class="form-textarea" id="fComentarioInterno" placeholder=""></textarea>
+          </div>
+        </div>
+
+        <!-- ══ DISPOSICIONES PROVEEDOR ══ -->
+        <div id="dispProveedorWrap" style="display:none">
+          <div class="form-section-title">🔀 Disposición inicial</div>
+          <div class="form-group">
+            <label class="form-label">¿Qué hacemos con esta pieza?<span>*</span></label>
+            <div class="disposicion-grid" style="grid-template-columns:repeat(2,1fr)">
+              <div class="disp-option" id="dRechazado" onclick="selectDisp('Rechazado')">
+                <span class="disp-icon">❌</span><span class="disp-label">Rechazado</span>
+              </div>
+              <div class="disp-option" id="dDevolucion" onclick="selectDisp('Devolución')">
+                <span class="disp-icon">↩️</span><span class="disp-label">Devolución</span>
+              </div>
+              <div class="disp-option" id="dRetrabajoP" onclick="selectDisp('Retrabajo')">
+                <span class="disp-icon">🔧</span><span class="disp-label">Retrabajo interno</span>
+              </div>
+              <div class="disp-option" id="dDesvioP" onclick="selectDisp('Pedido de Desvío')">
+                <span class="disp-icon">📋</span><span class="disp-label">Pedir Desvío</span>
+              </div>
             </div>
-            <div class="disp-option" id="dDesvio" onclick="selectDisp('Pedido de Desvío')">
-              <span class="disp-icon">📋</span>
-              <span class="disp-label">Pedir Desvío</span>
-            </div>
+          </div>
+          <!-- Comentario retrabajo proveedor -->
+          <div class="form-group" id="comentarioProveedorWrap" style="display:none">
+            <label class="form-label">Detalle del retrabajo a realizar internamente<span>*</span></label>
+            <textarea class="form-textarea" id="fComentarioProveedor" placeholder="Describí exactamente qué trabajo se le va a hacer a la pieza dentro de la planta..."></textarea>
           </div>
         </div>
 
@@ -726,6 +758,7 @@ const API = 'https://script.google.com/macros/s/AKfycbxtjieOT7-DnT3I3GU74OrfRWlK
 
 // ── INGENIERÍA WHITELIST (editar aquí o cargar desde INGENIERIA sheet) ──
 const INGENIERIA_EMAILS = ['bvaldebenito@proshale.us', 'cbrendstrup@proshale.us'];
+const CALIDAD_EMAILS = ['jgirini@proshale.us', 'bvaldebenito@proshale.us', 'cbrendstrup@proshale.us'];
 
 // ── STATE ──
 let currentUser = null;
@@ -758,9 +791,10 @@ function doLogin() {
   if (!email || !email.includes('@')) { showToast('⚠️','Ingresá un email válido'); return; }
   currentUser = email;
   esIngenieria = INGENIERIA_EMAILS.includes(email);
+  const esCalidad = CALIDAD_EMAILS.includes(email);
   document.getElementById('userEmailDisplay').textContent = email;
   document.getElementById('userAvatar').textContent = email[0].toUpperCase();
-  document.getElementById('topbarRole').textContent = esIngenieria ? '· Ingeniería' : '· Operario';
+  document.getElementById('topbarRole').textContent = esIngenieria ? '· Ingeniería' : (esCalidad ? '· Calidad' : '· Operario');
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('appShell').style.display = 'block';
   loadNCR();
@@ -847,27 +881,14 @@ function renderLista() {
         <span class="badge ${badgeClass}">${n.Estado}</span>
       </div>
       <div class="card-meta">
-        ${n.Gravedad ? `<span class="badge ${gravedadToBadge(n.Gravedad)}">${gravedadIcon(n.Gravedad)} ${n.Gravedad}</span>` : ''}
-        ${n.Origen === 'Reclamo Neuquén' ? `<span class="badge badge-origen">📍 Neuquén</span>` : ''}
+        ${n.Origen && n.Origen.startsWith('Proveedor') ? `<span class="badge badge-gray">🚚 Proveedor</span>` : `<span class="badge badge-gray">🏭 Interno</span>`}
         ${n.Estado === 'Retrabajo' && !n.Reinspeccion_Resultado ? `<span class="badge badge-retrabajo">🔁 Pendiente reinspección</span>` : ''}
-        <span class="badge badge-gray">🔩 ${n.Maquina || '—'}</span>
+        ${n.Maquina ? `<span class="badge badge-gray">🔩 ${n.Maquina}</span>` : ''}
         <span class="badge badge-gray">📅 ${fecha}</span>
         ${n.Operario_Carga ? `<span class="badge badge-gray">👤 ${n.Operario_Carga.split('@')[0]}</span>` : ''}
       </div>
     </div>`;
   }).join('');
-}
-function gravedadToBadge(g) {
-  if (g === 'Alto') return 'badge-grav-alto';
-  if (g === 'Medio') return 'badge-grav-medio';
-  if (g === 'Bajo') return 'badge-grav-bajo';
-  return 'badge-gray';
-}
-function gravedadIcon(g) {
-  if (g === 'Alto') return '🔴';
-  if (g === 'Medio') return '🟡';
-  if (g === 'Bajo') return '🟢';
-  return '';
 }
 
 // ── DETALLE ──
@@ -875,7 +896,11 @@ function openDetalle(id) {
   const n = allNCR.find(x => x.ID_Desvio === id);
   if (!n) return;
   const isEng = esIngenieria;
+  const isCalidad = currentUser === 'jgirini@proshale.us' || esIngenieria;
   const isPending = n.Estado === 'Pendiente Ingeniería';
+  const isPendingCalidad = n.Estado === 'Pendiente Calidad';
+  const isPendingAprobacion = n.Estado === 'Pendiente Aprobación';
+  const esProveedor = n.Origen && n.Origen.startsWith('Proveedor');
 
   let html = `
     <div class="detail-hero">
@@ -883,7 +908,6 @@ function openDetalle(id) {
       <div class="detail-title">${n.OF || '—'} · ${n.Numero_Plano || '—'}</div>
       <div class="detail-sub" style="margin-bottom:10px">${n.Motivo_Desvio || '—'}</div>
       <span class="badge ${estadoToBadge(n.Estado)}">${n.Estado}</span>
-      ${n.Gravedad ? ` <span class="badge ${gravedadToBadge(n.Gravedad)}">${gravedadIcon(n.Gravedad)} ${n.Gravedad}</span>` : ''}
       ${isEng ? ' <span class="ing-badge">⚙️ Ingeniería</span>' : ''}
     </div>
 
@@ -892,10 +916,10 @@ function openDetalle(id) {
       ${dr('Orden de Fabricación', n.OF)}
       ${dr('Plano / Rev.', `${n.Numero_Plano} · Rev. ${n.Revision || '—'}`)}
       ${dr('N° Pieza', n.Numero_Pieza)}
-      ${dr('Máquina', n.Maquina)}
+      ${n.Maquina ? dr('Máquina', n.Maquina) : ''}
+      ${dr('Origen', n.Origen)}
       ${dr('Responsable', n.Responsable || n.Operario_Carga)}
       ${dr('Fecha registro', formatFecha(n.Fecha))}
-      ${dr('Origen', n.Origen)}
     </div>
 
     <div class="detail-section">
@@ -903,7 +927,7 @@ function openDetalle(id) {
       ${dr('Motivo', n.Motivo_Desvio)}
       <div class="detail-row"><span class="detail-key">Descripción</span></div>
       <p style="font-size:13px;color:var(--text);padding:8px 0;line-height:1.6">${n.Descripcion_Desvio || '—'}</p>
-      ${n.Comentario_Adicional ? `<div class="detail-row"><span class="detail-key">Comentario</span></div><p style="font-size:13px;color:var(--text2);padding:4px 0;line-height:1.6">${n.Comentario_Adicional}</p>` : ''}
+      ${n.Comentario_Adicional ? `<div class="detail-row"><span class="detail-key">Detalle / Retrabajo</span></div><p style="font-size:13px;color:var(--text2);padding:4px 0;line-height:1.6">${n.Comentario_Adicional}</p>` : ''}
     </div>
 
     ${n.Evidencia_Fotografica ? `<div class="detail-section">
@@ -920,34 +944,77 @@ function openDetalle(id) {
       ${dr('Disposición inicial', n.Disposicion_Inicial)}
       ${dr('Estado actual', n.Estado)}
       ${n.Disposicion_Final ? dr('Disposición final', n.Disposicion_Final) : ''}
-      ${n.Comentario_Ingenieria ? `<div class="detail-row"><span class="detail-key">Análisis Ingeniería</span></div><p style="font-size:13px;color:var(--text2);padding:4px 0;line-height:1.6">${n.Comentario_Ingenieria}</p>` : ''}
+      ${n.Comentario_Ingenieria ? `<div class="detail-row"><span class="detail-key">Comentario resolución</span></div><p style="font-size:13px;color:var(--text2);padding:4px 0;line-height:1.6">${n.Comentario_Ingenieria}</p>` : ''}
       ${n.Fecha_Cierre ? dr('Fecha cierre', formatFecha(n.Fecha_Cierre)) : ''}
       ${n.Responsable_Cierre ? dr('Cerrado por', n.Responsable_Cierre) : ''}
       ${n.Aprobador_Intermedio ? dr('Aprobado por', n.Aprobador_Intermedio) : ''}
-      ${n.Reinspeccion_Resultado ? dr('Reinspección', `${n.Reinspeccion_Resultado === 'Aprobado' ? '✅' : '❌'} ${n.Reinspeccion_Resultado} · ${formatFecha(n.Reinspeccion_Fecha)} · ${n.Reinspeccion_Responsable}`) : ''}
     </div>`;
 
-  // BOTONES INGENIERÍA
-  if (isEng && isPending) {
+  // ── BOTONES APROBACIÓN PROVEEDOR (bvaldebenito) ──
+  if (isPendingAprobacion && currentUser === 'bvaldebenito@proshale.us') {
     html += `<div class="action-zone">
-      <div class="action-zone-title">⚙️ Disposición de Ingeniería</div>
-      <div class="ing-comment">
-        <label class="form-label" style="margin-bottom:6px;display:block">Comentario técnico (opcional)</label>
-        <textarea id="ingComentario" placeholder="Análisis de causa raíz, decisión técnica..."></textarea>
-      </div>
-      <div class="action-buttons" style="margin-top:12px">
-        <button class="btn btn-danger" onclick="openModal('Scrap','${n.ID_Desvio}')">🗑 Disponer como Scrap</button>
-        <button class="btn btn-warning" onclick="openModal('Retrabajo','${n.ID_Desvio}')">🔧 Disponer como Retrabajo</button>
-        <button class="btn btn-success" onclick="openModal('Liberado Bajo Concesión','${n.ID_Desvio}')">✅ Liberar Bajo Concesión</button>
+      <div class="action-zone-title">✅ Aprobación de disposición — Proveedor</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Disposición propuesta: <strong>${n.Disposicion_Inicial}</strong> · ${n.Origen}</p>
+      <div class="action-buttons">
+        <button class="btn btn-success" onclick="confirmarAprobacion('aprobado','${n.ID_Desvio}')">✅ Aprobar disposición</button>
+        <button class="btn btn-danger" onclick="confirmarAprobacion('rechazado','${n.ID_Desvio}')">❌ Rechazar y cerrar NCR</button>
       </div>
     </div>`;
   }
 
-  // REINSPECCIÓN OBLIGATORIA POST-RETRABAJO
+  // ── BOTONES CALIDAD (interno: scrap/retrabajo/otra app) ──
+  if (isPendingCalidad && isCalidad) {
+    const dispInicial = n.Disposicion_Inicial;
+    const needsComment = dispInicial === 'Retrabajo' || dispInicial === 'Otra Aplicación';
+    const commentLabel = dispInicial === 'Retrabajo' ? 'Detalle del retrabajo a realizar' : 'Plano o aplicación de destino';
+    html += `<div class="action-zone">
+      <div class="action-zone-title">✅ Autorización Control de Calidad</div>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px">Disposición propuesta: <strong>${dispInicial}</strong></p>
+      ${needsComment ? `<div class="ing-comment" style="margin-bottom:12px">
+        <label class="form-label" style="margin-bottom:6px;display:block">${commentLabel} <span style="color:var(--red)">*</span></label>
+        <textarea id="calidadComentario" placeholder="${dispInicial === 'Retrabajo' ? 'Describí qué retrabajo hay que hacer...' : 'Indicá plano o aplicación de destino...'}"></textarea>
+      </div>` : ''}
+      <div class="action-buttons">
+        <button class="btn btn-success" onclick="confirmarCalidad('autorizado','${n.ID_Desvio}')">✅ Autorizar disposición</button>
+        <button class="btn btn-danger" onclick="confirmarCalidad('rechazado','${n.ID_Desvio}')">❌ Rechazar y cerrar NCR</button>
+      </div>
+    </div>`;
+  }
+
+  // ── BOTONES INGENIERÍA (pedido de desvío) ──
+  if (isEng && isPending) {
+    const dispOpts = esProveedor
+      ? [
+          {d:'Rechazado', icon:'❌', cls:'btn-danger'},
+          {d:'Devolución', icon:'↩️', cls:'btn-warning'},
+          {d:'Retrabajo', icon:'🔧', cls:'btn-warning'},
+          {d:'Liberado Bajo Concesión', icon:'✅', cls:'btn-success'},
+        ]
+      : [
+          {d:'Scrap', icon:'🗑', cls:'btn-danger'},
+          {d:'Retrabajo', icon:'🔧', cls:'btn-warning'},
+          {d:'Otra Aplicación', icon:'🔄', cls:'btn-warning'},
+          {d:'Liberado Bajo Concesión', icon:'✅', cls:'btn-success'},
+        ];
+
+    const needsCommentDisps = ['Retrabajo','Otra Aplicación','Liberado Bajo Concesión'];
+    html += `<div class="action-zone">
+      <div class="action-zone-title">⚙️ Disposición de Ingeniería</div>
+      <div class="ing-comment" id="ingCommentWrap">
+        <label class="form-label" id="ingCommentLabel" style="margin-bottom:6px;display:block">Comentario técnico</label>
+        <textarea id="ingComentario" placeholder="Análisis de causa raíz, decisión técnica..."></textarea>
+      </div>
+      <div class="action-buttons" style="margin-top:12px">
+        ${dispOpts.map(o => `<button class="btn ${o.cls}" onclick="openModal('${o.d}','${n.ID_Desvio}')">${o.icon} ${o.d}</button>`).join('')}
+      </div>
+    </div>`;
+  }
+
+  // ── REINSPECCIÓN POST-RETRABAJO ──
   if (isEng && n.Estado === 'Retrabajo' && !n.Reinspeccion_Resultado) {
     html += `<div class="action-zone" style="background:rgba(251,191,36,0.10);border-color:rgba(251,191,36,0.3)">
       <div class="action-zone-title" style="color:var(--amber)">🔁 Reinspección requerida (pieza retrabajada)</div>
-      <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.5">Según PSH-PG-02, toda pieza con disposición Retrabajo debe reinspeccionarse antes de cerrar el caso.</p>
+      <p style="font-size:13px;color:var(--text2);margin-bottom:12px;line-height:1.5">Toda pieza con disposición Retrabajo debe reinspeccionarse antes de cerrar el caso.</p>
       <div class="action-buttons">
         <button class="btn btn-success" onclick="openModalReinsp('Aprobado','${n.ID_Desvio}')">✅ Reinspección aprobada – Conforme</button>
         <button class="btn btn-danger" onclick="openModalReinsp('Rechazado','${n.ID_Desvio}')">❌ Reinspección rechazada – Enviar a Scrap</button>
@@ -956,25 +1023,97 @@ function openDetalle(id) {
   }
 
   html += '<div style="height:16px"></div>';
-
   document.getElementById('detalleContent').innerHTML = html;
   showScreen('screenDetalle');
+}
+
+// ── CALIDAD: autorizar o rechazar ──
+async function confirmarCalidad(accion, id) {
+  const idx = allNCR.findIndex(x => x.ID_Desvio === id);
+  if (idx === -1) return;
+  const ncr = { ...allNCR[idx] };
+  const comentario = document.getElementById('calidadComentario')?.value.trim() || '';
+
+  const needsComment = ncr.Disposicion_Inicial === 'Retrabajo' || ncr.Disposicion_Inicial === 'Otra Aplicación';
+  if (accion === 'autorizado' && needsComment && !comentario) {
+    showToast('⚠️','Completá el comentario antes de autorizar'); return;
+  }
+
+  showLoading('Procesando...');
+  ncr.Aprobador_Intermedio = currentUser;
+  ncr.Fecha_Cierre = new Date().toISOString();
+  ncr.Responsable_Cierre = currentUser;
+
+  if (accion === 'autorizado') {
+    ncr.Estado = ncr.Disposicion_Inicial;
+    ncr.Disposicion_Final = ncr.Disposicion_Inicial;
+    if (comentario) ncr.Comentario_Ingenieria = comentario;
+  } else {
+    ncr.Estado = 'Rechazado por Calidad';
+    ncr.Disposicion_Final = 'Rechazado por Calidad';
+  }
+
+  allNCR[idx] = ncr;
+  try {
+    const rowData = COLS.map(c => ncr[c] || '');
+    await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'update', rowIndex: idx+2, data: rowData, notificarCierre: true })
+    });
+    showToast(accion==='autorizado' ? '✅' : '❌', accion==='autorizado' ? 'Disposición autorizada y cerrada' : 'NCR rechazado y cerrado');
+  } catch(e) {
+    showToast('⚠️','Guardado local. Reconectar para sincronizar.');
+  }
+  hideLoading(); renderLista(); renderDash(); showScreen('screenLista');
 }
 
 function dr(key, val) {
   return `<div class="detail-row"><span class="detail-key">${key}</span><span class="detail-val">${val || '—'}</span></div>`;
 }
 
+// ── APROBACIÓN PROVEEDOR (bvaldebenito) ──
+async function confirmarAprobacion(accion, id) {
+  const idx = allNCR.findIndex(x => x.ID_Desvio === id);
+  if (idx === -1) return;
+  const ncr = { ...allNCR[idx] };
+
+  showLoading('Procesando...');
+  ncr.Aprobador_Intermedio = currentUser;
+  ncr.Fecha_Cierre = new Date().toISOString();
+  ncr.Responsable_Cierre = currentUser;
+
+  if (accion === 'aprobado') {
+    ncr.Estado = ncr.Disposicion_Inicial;
+    ncr.Disposicion_Final = ncr.Disposicion_Inicial;
+  } else {
+    ncr.Estado = 'Rechazado por Aprobador';
+    ncr.Disposicion_Final = 'Rechazado por Aprobador';
+  }
+
+  allNCR[idx] = ncr;
+  try {
+    const rowData = COLS.map(c => ncr[c] || '');
+    await fetch(API, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'update', rowIndex: idx+2, data: rowData, notificarCierre: true })
+    });
+    showToast(accion==='aprobado' ? '✅' : '❌', accion==='aprobado' ? 'Disposición aprobada y cerrada' : 'NCR rechazado y cerrado');
+  } catch(e) {
+    showToast('⚠️','Guardado local. Reconectar para sincronizar.');
+  }
+  hideLoading(); renderLista(); renderDash(); showScreen('screenLista');
+}
+
 // ── MODAL DISPOSICIÓN ──
 function openModal(disp, id) {
   pendingDisp = disp;
   pendingNCRId = id;
-  const icons = { 'Scrap':'🗑', 'Retrabajo':'🔧', 'Liberado Bajo Concesión':'✅' };
-  const colors = { 'Scrap':'btn-danger', 'Retrabajo':'btn-warning', 'Liberado Bajo Concesión':'btn-success' };
-  document.getElementById('modalTitle').textContent = `${icons[disp]} Confirmar: ${disp}`;
+  const icons = { 'Scrap':'🗑', 'Retrabajo':'🔧', 'Liberado Bajo Concesión':'✅', 'Rechazado':'❌', 'Devolución':'↩️', 'Otra Aplicación':'🔄' };
+  const colors = { 'Scrap':'btn-danger', 'Rechazado':'btn-danger', 'Retrabajo':'btn-warning', 'Devolución':'btn-warning', 'Otra Aplicación':'btn-warning', 'Liberado Bajo Concesión':'btn-success' };
+  document.getElementById('modalTitle').textContent = `${icons[disp]||'📋'} Confirmar: ${disp}`;
   document.getElementById('modalBody').textContent = `¿Confirmás que el NCR ${id} queda con disposición "${disp}"? Esta acción no puede revertirse.`;
   const btn = document.getElementById('modalConfirmBtn');
-  btn.className = `btn ${colors[disp]}`;
+  btn.className = `btn ${colors[disp]||'btn-primary'}`;
   btn.textContent = `Confirmar ${disp}`;
   document.getElementById('modalDisp').classList.add('open');
 }
@@ -982,20 +1121,26 @@ function closeModal() { document.getElementById('modalDisp').classList.remove('o
 
 async function confirmDisp() {
   closeModal();
-  const comentario = document.getElementById('ingComentario') ? document.getElementById('ingComentario').value : '';
-  showLoading('Aplicando disposición...');
+  const comentario = document.getElementById('ingComentario') ? document.getElementById('ingComentario').value.trim() : '';
 
+  // Comentario obligatorio para algunas disposiciones
+  const needsComment = ['Retrabajo','Otra Aplicación','Liberado Bajo Concesión'].includes(pendingDisp);
+  if (needsComment && !comentario) {
+    showToast('⚠️', `El comentario es obligatorio para "${pendingDisp}"`);
+    return;
+  }
+
+  showLoading('Aplicando disposición...');
   const idx = allNCR.findIndex(x => x.ID_Desvio === pendingNCRId);
   if (idx === -1) { hideLoading(); return; }
 
   const ncr = { ...allNCR[idx] };
   ncr.Estado = pendingDisp;
   ncr.Disposicion_Final = pendingDisp;
-  ncr.Aprobador_Intermedio = currentUser; // queda registrado quién aprobó, distinto de quien detectó/propuso
+  ncr.Aprobador_Intermedio = currentUser;
   if (comentario) ncr.Comentario_Ingenieria = comentario;
 
   if (pendingDisp === 'Retrabajo') {
-    // El caso NO se cierra todavía: la pieza reprocesada requiere reinspección antes del cierre
     ncr.Fecha_Cierre = '';
     ncr.Responsable_Cierre = '';
   } else {
@@ -1004,10 +1149,8 @@ async function confirmDisp() {
   }
 
   allNCR[idx] = ncr;
-
   try {
     const rowData = COLS.map(c => ncr[c] || '');
-    // find row index in sheet (row 1 = headers, so NCR idx+2)
     await fetch(API, {
       method: 'POST',
       body: JSON.stringify({ action: 'update', rowIndex: idx + 2, data: rowData, notificarCierre: pendingDisp !== 'Retrabajo' })
@@ -1016,10 +1159,7 @@ async function confirmDisp() {
   } catch(e) {
     showToast('⚠️', 'Guardado local. Reconectar para sincronizar.');
   }
-  hideLoading();
-  renderLista();
-  renderDash();
-  showScreen('screenLista');
+  hideLoading(); renderLista(); renderDash(); showScreen('screenLista');
 }
 
 // ── REINSPECCIÓN POST-RETRABAJO ──
@@ -1078,13 +1218,76 @@ async function confirmReinsp() {
   showScreen('screenLista');
 }
 
-// ── NUEVO NCR ──
+// ── ORIGEN Y DISPOSICIÓN ──
+let selectedOrigen = ''; // 'interno' | 'proveedor'
 let selectedDisp = '';
+
+function selectOrigen(o) {
+  selectedOrigen = o;
+  selectedDisp = '';
+
+  document.getElementById('origenInterno').className = 'disp-option' + (o==='interno' ? ' selected-desvio' : '');
+  document.getElementById('origenProveedor').className = 'disp-option' + (o==='proveedor' ? ' selected-desvio' : '');
+
+  document.getElementById('maquinaWrap').style.display = o==='interno' ? 'block' : 'none';
+  document.getElementById('proveedorNombreWrap').style.display = o==='proveedor' ? 'block' : 'none';
+  document.getElementById('dispInternoWrap').style.display = o==='interno' ? 'block' : 'none';
+  document.getElementById('dispProveedorWrap').style.display = o==='proveedor' ? 'block' : 'none';
+
+  // reset máquina al cambiar origen
+  if (o === 'interno') document.getElementById('fMaquina').value = '';
+  if (o === 'proveedor') document.getElementById('fProveedorNombre').value = '';
+
+  resetDispButtons();
+  document.getElementById('comentarioInternoWrap').style.display = 'none';
+  document.getElementById('comentarioProveedorWrap').style.display = 'none';
+}
+
+function resetDispButtons() {
+  ['dScrap','dRetrabajo','dOtraApp','dDesvio','dRechazado','dDevolucion','dRetrabajoP','dDesvioP'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.className = 'disp-option';
+  });
+}
+
 function selectDisp(d) {
   selectedDisp = d;
-  document.getElementById('dScrap').className = 'disp-option' + (d==='Scrap'?' selected-scrap':'');
-  document.getElementById('dRetrabajo').className = 'disp-option' + (d==='Retrabajo'?' selected-retrabajo':'');
-  document.getElementById('dDesvio').className = 'disp-option' + (d==='Pedido de Desvío'?' selected-desvio':'');
+  resetDispButtons();
+
+  // Colorear botón seleccionado
+  const colorMap = {
+    'Scrap': 'selected-scrap', 'Rechazado': 'selected-scrap',
+    'Retrabajo': 'selected-retrabajo', 'Devolución': 'selected-retrabajo',
+    'Otra Aplicación': 'selected-desvio', 'Pedido de Desvío': 'selected-desvio'
+  };
+  const idMap = {
+    'Scrap':'dScrap','Retrabajo': selectedOrigen==='proveedor' ? 'dRetrabajoP' : 'dRetrabajo',
+    'Otra Aplicación':'dOtraApp','Pedido de Desvío': selectedOrigen==='proveedor' ? 'dDesvioP' : 'dDesvio',
+    'Rechazado':'dRechazado','Devolución':'dDevolucion'
+  };
+  const btnId = idMap[d];
+  if (btnId && document.getElementById(btnId)) {
+    document.getElementById(btnId).className = 'disp-option ' + (colorMap[d] || '');
+  }
+
+  // Comentario interno: retrabajo o otra app requieren comentario de Calidad
+  if (selectedOrigen === 'interno') {
+    const needsComment = d === 'Retrabajo' || d === 'Otra Aplicación';
+    const wrap = document.getElementById('comentarioInternoWrap');
+    wrap.style.display = needsComment ? 'block' : 'none';
+    if (d === 'Retrabajo') {
+      document.getElementById('comentarioInternoLabel').textContent = 'Descripción del retrabajo a realizar *';
+      document.getElementById('fComentarioInterno').placeholder = 'Describí qué retrabajo hay que hacer en la pieza...';
+    } else if (d === 'Otra Aplicación') {
+      document.getElementById('comentarioInternoLabel').textContent = 'Plano de destino / aplicación *';
+      document.getElementById('fComentarioInterno').placeholder = 'Indicá para qué plano o aplicación se va a usar esta pieza...';
+    }
+  }
+
+  // Comentario proveedor: retrabajo requiere detalle
+  if (selectedOrigen === 'proveedor') {
+    document.getElementById('comentarioProveedorWrap').style.display = d === 'Retrabajo' ? 'block' : 'none';
+  }
 }
 
 function previewFoto(input) {
@@ -1106,58 +1309,73 @@ async function submitNCR() {
   const maquina = getMaquinaValue();
   const motivo = document.getElementById('fMotivo').value;
   const desc = document.getElementById('fDescripcion').value.trim();
-  const gravedad = document.getElementById('fGravedad').value;
-  const origen = document.getElementById('fOrigen').value;
 
-  if (!of || !plano || !pieza || !maquina || maquina === '' || !motivo || !desc || !selectedDisp || !gravedad || !origen) {
-    showToast('⚠️','Completá todos los campos obligatorios y seleccioná la disposición');
-    return;
+  if (!selectedOrigen) { showToast('⚠️','Seleccioná el origen del desvío (Interno o Proveedor)'); return; }
+  if (!of || !plano || !pieza || !motivo || !desc || !selectedDisp) {
+    showToast('⚠️','Completá todos los campos obligatorios y seleccioná la disposición'); return;
+  }
+  if (selectedOrigen === 'proveedor' && !document.getElementById('fProveedorNombre').value.trim()) {
+    showToast('⚠️','Ingresá el nombre del proveedor'); return;
+  }
+  // Comentario obligatorio para retrabajo/otra app interno y retrabajo proveedor
+  if (selectedOrigen === 'interno' && (selectedDisp === 'Retrabajo' || selectedDisp === 'Otra Aplicación')) {
+    if (!document.getElementById('fComentarioInterno').value.trim()) {
+      showToast('⚠️','Completá el detalle del retrabajo o aplicación'); return;
+    }
+  }
+  if (selectedOrigen === 'proveedor' && selectedDisp === 'Retrabajo') {
+    if (!document.getElementById('fComentarioProveedor').value.trim()) {
+      showToast('⚠️','Completá el detalle del retrabajo a realizar'); return;
+    }
   }
 
-  // Generar ID correlativo D-01, D-02...
+  // ID correlativo
   const existingIds = allNCR.map(n => n.ID_Desvio).filter(id => id && id.startsWith('D-'));
-  const maxNum = existingIds.reduce((max, id) => {
-    const num = parseInt(id.split('-')[1]) || 0;
-    return num > max ? num : max;
-  }, 0);
+  const maxNum = existingIds.reduce((max, id) => { const num = parseInt(id.split('-')[1])||0; return num>max?num:max; }, 0);
   const id = `D-${String(maxNum + 1).padStart(2, '0')}`;
 
-  const estado = selectedDisp === 'Pedido de Desvío' ? 'Pendiente Ingeniería' : selectedDisp;
-  const reqIng = selectedDisp === 'Pedido de Desvío' ? 'TRUE' : 'FALSE';
+  // Estado
+  let estado = selectedDisp;
+  let reqIng = 'FALSE';
+  if (selectedDisp === 'Pedido de Desvío') { estado = 'Pendiente Ingeniería'; reqIng = 'TRUE'; }
+  // Scrap/Retrabajo/OtraApp interno → piden autorización a Calidad
+  const needsCalidad = selectedOrigen === 'interno' && ['Scrap','Retrabajo','Otra Aplicación'].includes(selectedDisp);
+  if (needsCalidad) { estado = 'Pendiente Calidad'; }
+  // Rechazado/Devolución/Retrabajo proveedor → piden aprobación a bvaldebenito
+  const needsAprobacion = selectedOrigen === 'proveedor' && ['Rechazado','Devolución','Retrabajo'].includes(selectedDisp);
+  if (needsAprobacion) { estado = 'Pendiente Aprobación'; }
 
-  // Subir imagen a Drive si hay foto
-  let fotoSrc = '';
-  const fotoFile = document.getElementById('fFoto').files[0];
-  if (fotoFile) {
-    showLoading('Subiendo imagen...');
-    fotoSrc = await subirImagen(fotoFile);
+  // Comentario adicional compuesto
+  let comentarioExtra = document.getElementById('fComentario').value.trim();
+  if (selectedOrigen === 'interno' && document.getElementById('fComentarioInterno').value.trim()) {
+    comentarioExtra = document.getElementById('fComentarioInterno').value.trim() + (comentarioExtra ? ' | ' + comentarioExtra : '');
+  }
+  if (selectedOrigen === 'proveedor' && document.getElementById('fComentarioProveedor')?.value.trim()) {
+    comentarioExtra = document.getElementById('fComentarioProveedor').value.trim() + (comentarioExtra ? ' | ' + comentarioExtra : '');
   }
 
-  showLoading('Guardando NCR...');
+  const origenLabel = selectedOrigen === 'proveedor'
+    ? `Proveedor: ${document.getElementById('fProveedorNombre').value.trim()}`
+    : 'Interno Manufactura';
 
+  // Subir imagen
+  let fotoSrc = '';
+  const fotoFile = document.getElementById('fFoto').files[0];
+  if (fotoFile) { showLoading('Subiendo imagen...'); fotoSrc = await subirImagen(fotoFile); }
+
+  showLoading('Guardando NCR...');
   const now = new Date();
+  const maquinaVal = selectedOrigen === 'proveedor' ? '' : maquina;
+
   const row = [
-    id,
-    now.toISOString(),
-    currentUser,
-    of,
-    plano,
+    id, now.toISOString(), currentUser, of, plano,
     document.getElementById('fRevision').value.trim(),
-    pieza,
-    maquina,
-    currentUser,
-    motivo,
-    desc,
-    document.getElementById('fComentario').value.trim(),
-    fotoSrc,
-    selectedDisp,
-    reqIng,
-    estado,
+    pieza, maquinaVal, currentUser, motivo, desc,
+    comentarioExtra, fotoSrc, selectedDisp, reqIng, estado,
     '', '', '', '',
-    gravedad,
-    origen,
-    '',
-    '', '', ''
+    '', // Gravedad (eliminado)
+    origenLabel,
+    '', '', '', ''
   ];
 
   const newNCR = rowToObj(row);
@@ -1166,25 +1384,33 @@ async function submitNCR() {
   try {
     await fetch(API, {
       method: 'POST',
-      body: JSON.stringify({ action: 'add', data: row })
+      body: JSON.stringify({ action: 'add', data: row, needsCalidad, needsAprobacion, origenLabel, needsIngenieria: reqIng==='TRUE' })
     });
     showToast('✅', `NCR ${id} registrado correctamente`);
   } catch(e) {
     showToast('⚠️','Guardado local. Se sincronizará al reconectar.');
   }
 
-  // reset form
-  ['fOF','fPlano','fRevision','fPieza','fDescripcion','fComentario'].forEach(id => document.getElementById(id).value = '');
+  // Reset
+  ['fOF','fPlano','fRevision','fPieza','fDescripcion','fComentario','fComentarioInterno','fComentarioProveedor','fProveedorNombre'].forEach(fid => {
+    const el = document.getElementById(fid); if(el) el.value = '';
+  });
   document.getElementById('fMaquina').value = '';
-  document.getElementById('fMaquinaLibre').value = '';
-  document.getElementById('fMaquinaLibre').style.display = 'none';
+  if (document.getElementById('fProveedorNombre')) document.getElementById('fProveedorNombre').value = '';
   document.getElementById('fMotivo').value = '';
-  document.getElementById('fGravedad').value = '';
-  document.getElementById('fOrigen').value = '';
   document.getElementById('fotoPreview').src = '';
   document.getElementById('fotoPreview').style.display = 'none';
   document.getElementById('fFoto').value = '';
-  selectDisp('');
+  selectedDisp = ''; selectedOrigen = '';
+  document.getElementById('origenInterno').className = 'disp-option';
+  document.getElementById('origenProveedor').className = 'disp-option';
+  document.getElementById('maquinaWrap').style.display = 'none';
+  document.getElementById('dispInternoWrap').style.display = 'none';
+  document.getElementById('dispProveedorWrap').style.display = 'none';
+  document.getElementById('proveedorNombreWrap').style.display = 'none';
+  document.getElementById('comentarioInternoWrap').style.display = 'none';
+  document.getElementById('comentarioProveedorWrap').style.display = 'none';
+  resetDispButtons();
 
   hideLoading();
   renderLista();
@@ -1192,25 +1418,9 @@ async function submitNCR() {
   navTo('lista');
 }
 
-// ── MÁQUINA LIBRE ──
-document.addEventListener('DOMContentLoaded', () => {
-  const sel = document.getElementById('fMaquina');
-  if (sel) {
-    sel.addEventListener('change', () => {
-      const libre = document.getElementById('fMaquinaLibre');
-      libre.style.display = sel.value === 'Proveedor externo' ? 'block' : 'none';
-      if (sel.value !== 'Proveedor externo') libre.value = '';
-    });
-  }
-});
-
 function getMaquinaValue() {
-  const sel = document.getElementById('fMaquina').value;
-  if (sel === 'Proveedor externo') {
-    const libre = document.getElementById('fMaquinaLibre').value.trim();
-    return libre ? `Proveedor: ${libre}` : 'Proveedor externo';
-  }
-  return sel;
+  if (selectedOrigen === 'proveedor') return '';
+  return document.getElementById('fMaquina')?.value || '';
 }
 
 // ── SUBIR IMAGEN A GOOGLE DRIVE ──
@@ -1406,16 +1616,16 @@ function showScreen(id) {
 
 // ── HELPERS ──
 function estadoToClass(e) {
-  if (e === 'Scrap') return 'scrap';
-  if (e === 'Retrabajo') return 'retrabajo';
-  if (e === 'Pendiente Ingeniería') return 'pendiente';
+  if (e === 'Scrap' || e === 'Rechazado' || e === 'Rechazado por Calidad' || e === 'Rechazado por Aprobador') return 'scrap';
+  if (e === 'Retrabajo' || e === 'Devolución' || e === 'Otra Aplicación') return 'retrabajo';
+  if (e === 'Pendiente Ingeniería' || e === 'Pendiente Calidad' || e === 'Pendiente Aprobación') return 'pendiente';
   if (e === 'Liberado Bajo Concesión') return 'concesion';
   return 'pendiente';
 }
 function estadoToBadge(e) {
-  if (e === 'Scrap') return 'badge-scrap';
-  if (e === 'Retrabajo') return 'badge-retrabajo';
-  if (e === 'Pendiente Ingeniería') return 'badge-pendiente';
+  if (e === 'Scrap' || e === 'Rechazado' || e === 'Rechazado por Calidad' || e === 'Rechazado por Aprobador') return 'badge-scrap';
+  if (e === 'Retrabajo' || e === 'Devolución' || e === 'Otra Aplicación') return 'badge-retrabajo';
+  if (e === 'Pendiente Ingeniería' || e === 'Pendiente Calidad' || e === 'Pendiente Aprobación') return 'badge-pendiente';
   if (e === 'Liberado Bajo Concesión') return 'badge-concesion';
   return 'badge-gray';
 }
